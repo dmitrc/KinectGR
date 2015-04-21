@@ -1,1 +1,0 @@
-c:\users\dmitrii cucleschin\documents\visual studio 2013\Projects\ThesisProj\ThesisProj\bin\x64\Debug\ThesisProj.exe.config
