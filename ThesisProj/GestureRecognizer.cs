@@ -34,7 +34,7 @@ namespace ThesisProj
             Gestures.Add(g);
         }
 
-        public double Compare(Image<Gray, byte> first, Image<Gray, byte> second)
+        public double CompareShapes(Image<Gray, byte> first, Image<Gray, byte> second)
         {
             return CvInvoke.cvMatchShapes(first, second, CONTOURS_MATCH_TYPE.CV_CONTOURS_MATCH_I2, 0);
         }
@@ -44,8 +44,12 @@ namespace ThesisProj
             List<Gesture> recognizedGestures = new List<Gesture>();
             for (int i = 0; i < Gestures.Count; ++i)
             {
-                double match = Compare(contour, Gestures[i].Image);
-                if (match <= MATCH_THRESHOLD)
+                double match = CompareShapes(contour, Gestures[i].Image);
+                // contour.FingersNum == Gestures[i].FingersNum <- !
+                // ...
+
+
+                if (match <= MATCH_THRESHOLD && true) // !
                 {
                     recognizedGestures.Add(Gestures[i]);
                 }

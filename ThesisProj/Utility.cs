@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
@@ -9,6 +10,7 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.Util;
 using Point = System.Drawing.Point;
+using PointF = System.Drawing.PointF;
 using Size = System.Drawing.Size;
 
 namespace ThesisProj
@@ -70,6 +72,12 @@ namespace ThesisProj
         public static int HandBorder = 5;
         public static ushort MinReliableDepth = 500;
         public static ushort MaxReliableDepth = 4500;
+
+        public const double CosThreshold = 0.5;
+        public const double EqualsThreshold = 1e-7;
+        public const int Step = 12;
+        public const int R = 30;
+       
         public static CoordinateMapper CoordinateMapper = null;
 
         public static double Dist(Point a, Point b)
@@ -77,15 +85,51 @@ namespace ThesisProj
             return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
         }
 
-        public static double Dist(System.Drawing.PointF a, System.Drawing.PointF b)
+        public static double Dist(PointF a, PointF b)
         {
             return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
         }
 
-        public static double MagicalFunction(System.Drawing.PointF a, System.Drawing.PointF b, System.Drawing.PointF c)
+        public static double MagicalFunction(PointF a, PointF b, PointF c)
         {
             return a.X * b.Y + b.X * c.Y + a.Y * c.X - b.Y * c.X - a.X * c.Y - a.Y * b.X;
         }
+
+        public static bool IsEq(double a, double b)
+        {
+            return Math.Abs(a - b) <= EqualsThreshold;
+        }
+
+        public static double Angle(Contour<Point> contour, int pt)
+        {
+            int size = contour.Total;
+            Point p0 = (pt > 0) ? contour[pt%size] : contour[size - 1 + pt];
+            Point p1 = contour[(pt + R)%size];
+            Point p2 = (pt > R) ? contour[pt - R] : contour[size - 1 - R];
+
+            double ux = p0.X - p1.X;
+            double uy = p0.Y - p1.Y;
+            double vx = p0.X - p2.X;
+            double vy = p0.Y - p2.Y;
+
+            return (ux * vx + uy * vy) / Math.Sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
+        }
+
+        public static double Rotation(Contour<Point> contour, int pt)
+        {
+            int size = contour.Total;
+            Point p0 = (pt > 0) ? contour[pt % size] : contour[size - 1 + pt];
+            Point p1 = contour[(pt + R) % size];
+            Point p2 = (pt > R) ? contour[pt - R] : contour[size - 1 - R];
+
+            double ux = p0.X - p1.X;
+            double uy = p0.Y - p1.Y;
+            double vx = p0.X - p2.X;
+            double vy = p0.Y - p2.Y;
+
+            return (ux * vy - vx * uy);
+        }
+
 
         [DllImport("gdi32")]
         private static extern int DeleteObject(IntPtr o);
@@ -93,11 +137,11 @@ namespace ThesisProj
 
         public static BitmapSource ConvertImageToBitmapSource(IImage image)
         {
-            using (System.Drawing.Bitmap source = image.Bitmap)
+            using (Bitmap source = image.Bitmap)
             {
                 IntPtr ptr = source.GetHbitmap();
 
-                BitmapSource bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                BitmapSource bs = Imaging.CreateBitmapSourceFromHBitmap(
                     ptr,
                     IntPtr.Zero,
                     Int32Rect.Empty,

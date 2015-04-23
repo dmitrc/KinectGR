@@ -11,6 +11,7 @@ using Microsoft.Kinect;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using Color = System.Drawing.Color;
 
 namespace ThesisProj
 {
@@ -26,12 +27,15 @@ namespace ThesisProj
         private int _frameCount = 0;
         private Rectangle _leftRect;
         private Rectangle _rightRect;
+        private BitmapSource _emptyImage = null; 
 
         /// <summary>
         /// Public constructor for MainWindow.
         /// </summary>
         public MainWindow()
         {
+            _emptyImage = Utility.ConvertImageToBitmapSource(new Image<Bgr, byte>(Utility.HandWidth, Utility.HandHeight, new Bgr(Color.White)));
+
             _frameProcessor = new FrameProcessor();
             _frameProcessor.DepthReady += FrameProcessor_DepthReady;
             _frameProcessor.LeftImageReady += FrameProcessor_LeftImageReady;
@@ -62,26 +66,32 @@ namespace ThesisProj
         /// Updates the UI from the new left hand image.
         /// </summary>
         /// <param name="leftImage">Left hand image</param>
-        private void FrameProcessor_LeftImageReady(BitmapSource leftImage, Rect position)
+        private void FrameProcessor_LeftImageReady(Hand hand)
         {
-            LeftImage.Source = leftImage;
-
             if (_leftRect != null)
             {
                 DepthCanvas.Children.Remove(_leftRect);
             }
 
-            if (position != null)
+            if (hand == null)
+            {
+                LeftImage.Source = _emptyImage;
+                return;
+            }
+
+            LeftImage.Source = Utility.ConvertImageToBitmapSource(hand.DisplayImage);
+
+            if (hand.Position != null)
             {
                 _leftRect = new Rectangle();
 
-                _leftRect.Width = position.Width;
-                _leftRect.Height = position.Height;
+                _leftRect.Width = hand.Position.Width;
+                _leftRect.Height = hand.Position.Height;
                 _leftRect.Stroke = new SolidColorBrush(Colors.Orange);
                 _leftRect.StrokeThickness = 3;
 
-                Canvas.SetTop(_leftRect, position.Y);
-                Canvas.SetLeft(_leftRect, position.X);
+                Canvas.SetTop(_leftRect, hand.Position.Y);
+                Canvas.SetLeft(_leftRect, hand.Position.X);
 
                 DepthCanvas.Children.Add(_leftRect);
             }
@@ -91,26 +101,33 @@ namespace ThesisProj
         /// Updates the UI from the new right hand image.
         /// </summary>
         /// <param name="rightImage">Right hand image</param>
-        private void FrameProcessor_RightImageReady(BitmapSource rightImage, Rect position)
+        private void FrameProcessor_RightImageReady(Hand hand)
         {
-            RightImage.Source = rightImage;
-
             if (_rightRect != null)
             {
                 DepthCanvas.Children.Remove(_rightRect);
             }
 
-            if (position != null)
+
+            if (hand == null)
+            {
+                RightImage.Source = _emptyImage;
+                return;
+            }
+
+            RightImage.Source = Utility.ConvertImageToBitmapSource(hand.DisplayImage);
+
+            if (hand.Position != null)
             {
                 _rightRect = new Rectangle();
 
-                _rightRect.Width = position.Width;
-                _rightRect.Height = position.Height;
+                _rightRect.Width = hand.Position.Width;
+                _rightRect.Height = hand.Position.Height;
                 _rightRect.Stroke = new SolidColorBrush(Colors.LightSkyBlue);
                 _rightRect.StrokeThickness = 3;
 
-                Canvas.SetTop(_rightRect, position.Y);
-                Canvas.SetLeft(_rightRect, position.X);
+                Canvas.SetTop(_rightRect, hand.Position.Y);
+                Canvas.SetLeft(_rightRect, hand.Position.X);
 
                 DepthCanvas.Children.Add(_rightRect);
             }
@@ -123,46 +140,6 @@ namespace ThesisProj
         private void FrameProcessor_GesturesRecognized(List<Gesture> gestures)
         {
             Console.Write("!");
-        }
-
-        /// <summary>
-        /// Saves image of the left hand in jpeg file and add its gesture to GestureRecognizer's list.
-        /// </summary>
-        /// <param name="sender">Sender</param>
-        /// <param name="e">Event</param>
-        private void SaveLeftGesture(object sender, RoutedEventArgs e)
-        {
-            Hand hand = _frameProcessor.FrameBuffer.LatestFrame().LeftHand;
-            if (hand == null)
-            {
-                return;
-            }
-
-            Image<Gray, byte> contourImage = hand.MaskImage;
-            Gesture gesture = new Gesture(contourImage);
-
-            _frameProcessor.AddGesture(gesture);
-            gesture.ExportAs("gesture.jpg");
-        }
-
-        /// <summary>
-        /// Saves image of the right hand in jpeg file and add its gesture to GestureRecognizer's list.
-        /// </summary>
-        /// <param name="sender">Sender</param>
-        /// <param name="e">Event</param>
-        private void SaveRightGesture(object sender, RoutedEventArgs e)
-        {
-            Hand hand = _frameProcessor.FrameBuffer.LatestFrame().RightHand;
-            if (hand == null)
-            {
-                return;
-            }
-
-            Image<Gray, byte> contourImage = hand.MaskImage;
-            Gesture gesture = new Gesture(contourImage);
-
-            _frameProcessor.AddGesture(gesture);
-            gesture.ExportAs("gesture.jpg");
         }
 
         /// <summary>

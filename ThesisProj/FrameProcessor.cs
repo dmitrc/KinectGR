@@ -8,7 +8,6 @@ using System.Drawing;
 using Microsoft.Kinect;
 using Emgu.CV;
 using Emgu.CV.Structure;
-using Color = System.Drawing.Color;
 
 namespace ThesisProj
 {
@@ -22,11 +21,11 @@ namespace ThesisProj
         public event DepthReadyHandler DepthReady;
 
         // Define callback that returns rendered left hand image.
-        public delegate void LeftImageReadyHandler(BitmapSource leftImage, Rect position);
+        public delegate void LeftImageReadyHandler(Hand hand);
         public event LeftImageReadyHandler LeftImageReady;
 
         // Define callback that returns rendered right hand image.
-        public delegate void RightImageReadyHandler(BitmapSource rightImage, Rect position);
+        public delegate void RightImageReadyHandler(Hand hand);
         public event RightImageReadyHandler RightImageReady;
 
         // Define callback that returns recognized gestures.
@@ -38,7 +37,6 @@ namespace ThesisProj
         private HandRecognizer _rightHandRecognizer = null;
         private GestureRecognizer _leftGestureRecognizer = null;
         private GestureRecognizer _rightGestureRecognizer = null;
-        private BitmapSource _emptyImage = null; 
 
         public FrameBuffer FrameBuffer = null;
 
@@ -48,7 +46,6 @@ namespace ThesisProj
             _rightHandRecognizer = new HandRecognizer();
             _leftGestureRecognizer = new GestureRecognizer();
             _rightGestureRecognizer = new GestureRecognizer();
-            _emptyImage = Utility.ConvertImageToBitmapSource(new Image<Bgr, byte>(Utility.HandWidth, Utility.HandHeight, new Bgr(Color.White)));
 
             FrameBuffer = new FrameBuffer();
         }
@@ -140,11 +137,11 @@ namespace ThesisProj
             {
                 if (frameData.LeftHand != null)
                 {
-                    LeftImageReady(Utility.ConvertImageToBitmapSource(frameData.LeftHand.DisplayImage), frameData.LeftHand.Position);
+                    LeftImageReady(frameData.LeftHand);
                 }
                 else
                 {
-                    LeftImageReady(_emptyImage, null);
+                    LeftImageReady(null);
                 }
             }
 
@@ -154,11 +151,11 @@ namespace ThesisProj
             {
                 if (frameData.RightHand != null)
                 {
-                    RightImageReady(Utility.ConvertImageToBitmapSource(frameData.RightHand.DisplayImage), frameData.RightHand.Position);
+                    RightImageReady(frameData.RightHand);
                 }
                 else
                 {
-                    RightImageReady(_emptyImage, null);
+                    RightImageReady(null);
                 }
             }
 

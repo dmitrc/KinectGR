@@ -13,7 +13,7 @@ namespace ThesisProj
     {
         public static ushort FwdThreshold = 200; //mm
         public static ushort BwdThreshold = 25; //mm
-        public static ushort BodyDepthCutoff = 350; //mm // !
+        public static ushort BodyDepthCutoff = 350; //mm
 
         private ushort[] _depthFrame = null;
         private Dictionary<String, Joint> _joints = null;

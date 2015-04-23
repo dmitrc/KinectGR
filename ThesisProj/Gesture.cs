@@ -14,10 +14,12 @@ namespace ThesisProj
     class Gesture
     {
         public Image<Gray, byte> Image;
+        public int FingersCount = 0;
 
-        public Gesture(Image<Gray, byte> img)
+        public Gesture(Image<Gray, byte> img, int fingersCount)
         {
             Image = img;
+            FingersCount = fingersCount;
         }
 
         public Gesture(String filename)
