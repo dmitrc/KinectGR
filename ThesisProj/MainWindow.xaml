@@ -10,5 +10,8 @@
         <Label Content="Right hand" HorizontalAlignment="Left" Margin="835,10,0,0" VerticalAlignment="Top" Width="100" Height="31"/>
         <Label Content="Left hand" HorizontalAlignment="Left" Margin="645,10,0,0" VerticalAlignment="Top" Width="100" Height="31"/>
         <Label Content="Depth frame" HorizontalAlignment="Left" Margin="21,434,0,0" VerticalAlignment="Top" Width="513" Height="28"/>
+        <TextBlock Name="LeftResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="645,175,0,0" VerticalAlignment="Top" Width="124" Height="158"/>
+        <TextBlock Name="RightResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="811,175,0,0" VerticalAlignment="Top" Width="124" Height="158"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="884,397,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
     </Grid>
 </Window>

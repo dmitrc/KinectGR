@@ -13,18 +13,22 @@ namespace ThesisProj
 
     class Gesture
     {
+        public String Name;
         public Image<Gray, byte> Image;
         public int FingersCount = 0;
 
-        public Gesture(Image<Gray, byte> img, int fingersCount)
+        public Gesture(String name, Image<Gray, byte> img, int fingersCount)
         {
+            Name = name;
             Image = img;
             FingersCount = fingersCount;
         }
 
-        public Gesture(String filename)
+        public Gesture(String name, String filename, int fingersCount)
         {
-            // !
+            Name = name;
+            Image = new Image<Gray, byte>(filename);
+            FingersCount = fingersCount;
         }
 
         public void ExportAs(String filename)

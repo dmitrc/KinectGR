@@ -14,7 +14,7 @@ namespace ThesisProj
     /// </summary>
     class GestureRecognizer
     {
-        public double MATCH_THRESHOLD = 0.025;
+        public double MATCH_THRESHOLD = 0.005;
 
         public List<Gesture> Gestures;
 
@@ -34,22 +34,28 @@ namespace ThesisProj
             Gestures.Add(g);
         }
 
+        public void AddGestures(List<Gesture> g)
+        {
+            if (g != null && g.Count > 0)
+            {
+                Gestures.AddRange(g);
+            }
+        }
+
         public double CompareShapes(Image<Gray, byte> first, Image<Gray, byte> second)
         {
             return CvInvoke.cvMatchShapes(first, second, CONTOURS_MATCH_TYPE.CV_CONTOURS_MATCH_I2, 0);
         }
 
-        public List<Gesture> RecognizeGestures(Image<Gray, byte> contour)
+        public List<Gesture> RecognizeGestures(Image<Gray, byte> contour, int fingersCount)
         {
             List<Gesture> recognizedGestures = new List<Gesture>();
             for (int i = 0; i < Gestures.Count; ++i)
             {
                 double match = CompareShapes(contour, Gestures[i].Image);
-                // contour.FingersNum == Gestures[i].FingersNum <- !
-                // ...
 
-
-                if (match <= MATCH_THRESHOLD && true) // !
+                if (match <= MATCH_THRESHOLD 
+                    && Gestures[i].FingersCount == fingersCount)
                 {
                     recognizedGestures.Add(Gestures[i]);
                 }

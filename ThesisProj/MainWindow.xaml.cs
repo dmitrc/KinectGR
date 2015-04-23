@@ -137,9 +137,42 @@ namespace ThesisProj
         /// Notifies the user and executes defined actions for recognized gestures.
         /// </summary>
         /// <param name="gestures">List of recognized gestures</param>
-        private void FrameProcessor_GesturesRecognized(List<Gesture> gestures)
+        private void FrameProcessor_GesturesRecognized(List<Gesture> leftGestures, List<Gesture> rightGestures)
         {
-            Console.Write("!");
+            if (leftGestures.Count > 0)
+            {
+                String str = "Gesture(s) detected:\n\n";
+
+                foreach (var g in leftGestures)
+                {
+                    str += g.Name + "\n";
+                }
+
+                LeftResult.Text = str;
+            }
+            else
+            {
+                LeftResult.Text = "No gestures detected!";
+            }
+
+
+            if (rightGestures.Count > 0)
+            {
+                String str = "Gesture(s) detected:\n\n";
+
+                foreach (var g in rightGestures)
+                {
+                    str += g.Name + "\n";
+                }
+
+                RightResult.Text = str;
+            }
+            else
+            {
+                RightResult.Text = "No gestures detected!";
+            }
+
+     
         }
 
         /// <summary>
@@ -174,5 +207,12 @@ namespace ThesisProj
                 _frameProcessor.ProcessFrame(frame);
             }
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Image<Gray, byte> img = _frameProcessor.FrameBuffer.OldestFrame().RightHand.MaskImage;
+            img.ToBitmap().Save("gesture.jpg");
+        }
+
     }
 }

@@ -29,7 +29,7 @@ namespace ThesisProj
         public event RightImageReadyHandler RightImageReady;
 
         // Define callback that returns recognized gestures.
-        public delegate void GesturesRecognizedHandler(List<Gesture> gestures);
+        public delegate void GesturesRecognizedHandler(List<Gesture> leftGestures, List<Gesture> rightGestures);
         public event GesturesRecognizedHandler GesturesRecognized;
 
 
@@ -46,6 +46,18 @@ namespace ThesisProj
             _rightHandRecognizer = new HandRecognizer();
             _leftGestureRecognizer = new GestureRecognizer();
             _rightGestureRecognizer = new GestureRecognizer();
+
+            List<Gesture> gestures = new List<Gesture>();
+
+            gestures.Add(new Gesture("Open hand", "C:/Gestures/open_hand.jpg", 5));
+            gestures.Add(new Gesture("Peace", "C:/Gestures/peace.jpg", 2));
+            gestures.Add(new Gesture("Gotcha!", "C:/Gestures/gotcha.jpg", 2));
+            gestures.Add(new Gesture("Obscene gesture", "C:/Gestures/fockoff.jpg", 1));
+            gestures.Add(new Gesture("Spock", "C:/Gestures/spock.jpg", 5));
+            gestures.Add(new Gesture("Rock'n'roll!", "C:/Gestures/rock.jpg", 5));
+
+            _leftGestureRecognizer.AddGestures(gestures);
+            _rightGestureRecognizer.AddGestures(gestures);
 
             FrameBuffer = new FrameBuffer();
         }
@@ -163,22 +175,19 @@ namespace ThesisProj
             List<Gesture> leftGestures = new List<Gesture>();
             if (frameData.LeftHand != null)
             {
-                leftGestures = _leftGestureRecognizer.RecognizeGestures(frameData.LeftHand.MaskImage);
+                leftGestures = _leftGestureRecognizer.RecognizeGestures(frameData.LeftHand.MaskImage, frameData.LeftHand.Fingers.Count);
             }
 
             // Scan right hand for gestures
             List<Gesture> rightGestures = new List<Gesture>();
             if (frameData.RightHand != null)
             {
-                rightGestures = _rightGestureRecognizer.RecognizeGestures(frameData.RightHand.MaskImage);
+                rightGestures = _rightGestureRecognizer.RecognizeGestures(frameData.RightHand.MaskImage, frameData.RightHand.Fingers.Count);
             }
 
-            List<Gesture> gestures = leftGestures.Concat(rightGestures).ToList();
-            frameData.RecognizedGestures = gestures;
-
-            if (gestures.Count > 0 && GesturesRecognized != null)
+            if (GesturesRecognized != null)
             {
-                GesturesRecognized(gestures);
+                GesturesRecognized(leftGestures, rightGestures);
             }
 
             FrameBuffer.PushFrame(frameData);

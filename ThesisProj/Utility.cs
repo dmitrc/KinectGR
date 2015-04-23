@@ -36,33 +36,6 @@ namespace ThesisProj
         }
     }
 
-    //public class Point
-    //{
-    //    public int X;
-    //    public int Y;
-
-    //    public Point(int x, int y)
-    //    {
-    //        X = x;
-    //        Y = y;
-    //    }
-
-    //    public override string ToString()
-    //    {
-    //        return "(" + X + ", " + Y + ") ";
-    //    }
-
-    //    public int CompareTo(Point other)
-    //    {
-    //        if (other.X > X) return -1;
-    //        if (other.X < X) return 1;
-    //        if (other.Y > Y) return -1;
-    //        if (other.Y < Y) return 1;
-
-    //        return 0;
-    //    }
-    //}
-
     public class Utility
     {
         public static int FrameWidth = 512;
