@@ -18,40 +18,34 @@ namespace ThesisProj
         public Hand LeftHand;
         public Hand RightHand;
 
-        public List<Gesture> RecognizedGestures; 
+        public Gesture LeftGesture;
+        public Gesture RightGesture;
 
         public FrameData()
         {
             DepthData = new ushort[Utility.FrameHeight * Utility.FrameWidth];
             LeftJoints = new Dictionary<String, Joint>();
             RightJoints = new Dictionary<String, Joint>();
-            RecognizedGestures = new List<Gesture>();
         }
     }
 
     class FrameBuffer
     {
-        private Queue<FrameData> _queue;
+        private List<FrameData> _queue;
         private const int FRAME_BUFFER_SIZE = 30;
 
         public FrameBuffer()
         {
-            _queue = new Queue<FrameData>();
+            _queue = new List<FrameData>();
         }
 
         public void PushFrame(FrameData frame)
         {
-            _queue.Enqueue(frame);
+            _queue.Add(frame);
 
             if (_queue.Count > FRAME_BUFFER_SIZE)
             {
-                FrameData f = _queue.Dequeue();
-                f.DepthData = null;
-                f.LeftJoints = null;
-                f.RightJoints = null;
-                f.LeftHand = null;
-                f.RightHand = null;
-                f = null;
+                _queue.RemoveAt(0);
             }
         }
 

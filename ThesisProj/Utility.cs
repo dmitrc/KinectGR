@@ -42,14 +42,14 @@ namespace ThesisProj
         public static int FrameHeight = 424;
         public static int HandWidth = 120;
         public static int HandHeight = 120;
-        public static int HandBorder = 5;
+        public static int HandBorder = 10;
         public static ushort MinReliableDepth = 500;
         public static ushort MaxReliableDepth = 4500;
 
         public const double CosThreshold = 0.5;
         public const double EqualsThreshold = 1e-7;
-        public const int Step = 12;
-        public const int R = 30;
+        public const int Step = 8;
+        public const int R = 16;
        
         public static CoordinateMapper CoordinateMapper = null;
 

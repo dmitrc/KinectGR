@@ -1,17 +1,24 @@
 ﻿<Window x:Class="ThesisProj.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Gesture Recognizer v.0.0.1" Width="1024" Height="500" ResizeMode="CanMinimize">
-    <Grid Margin="0,0,-0.333,0">
-        <Image Name="DepthImage" Width="512" Height="424"  Margin="22,10,484.667,38" />
+        Title="KinectGR v0.2" Width="1024" Height="500" ResizeMode="CanMinimize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <BitmapImage x:Key="KinectNotAvailable" UriSource="not-available.JPG"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid Margin="0,0,0,0">
+        <Image Name="DepthImage" Width="512" Height="424"  Margin="22,10,484.667,38" Source ="{StaticResource KinectNotAvailable}"/>
         <Canvas Name="DepthCanvas" Width="512" Height="424" Margin="22,10,484.667,38" />
         <Image Name="LeftImage" Width="120" Height="120" Margin="645,46,245.667,298" />
         <Image Name="RightImage" Width="120" Height="120" Margin="835,46,55.667,298" />
-        <Label Content="Right hand" HorizontalAlignment="Left" Margin="835,10,0,0" VerticalAlignment="Top" Width="100" Height="31"/>
-        <Label Content="Left hand" HorizontalAlignment="Left" Margin="645,10,0,0" VerticalAlignment="Top" Width="100" Height="31"/>
-        <Label Content="Depth frame" HorizontalAlignment="Left" Margin="21,434,0,0" VerticalAlignment="Top" Width="513" Height="28"/>
-        <TextBlock Name="LeftResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="645,175,0,0" VerticalAlignment="Top" Width="124" Height="158"/>
-        <TextBlock Name="RightResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="811,175,0,0" VerticalAlignment="Top" Width="124" Height="158"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="884,397,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <Label Content="Right hand" HorizontalAlignment="Left" Margin="839,14,0,0" VerticalAlignment="Top" Width="100" Height="31" FontSize="13" FontFamily="Segoe WP Light"/>
+        <Label Content="Left hand" HorizontalAlignment="Left" Margin="649,14,0,0" VerticalAlignment="Top" Width="100" Height="31" FontSize="13" FontFamily="Segoe WP Light"/>
+        <Label Content="Depth frame" HorizontalAlignment="Left" Margin="21,437,0,0" VerticalAlignment="Top" Width="513" Height="28" FontSize="13" FontFamily="Segoe WP Light"/>
+        <TextBlock Name="LeftResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="649,228,0,0" VerticalAlignment="Top" Width="150" Height="234" FontSize="13"/>
+        <TextBlock Name="RightResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="839,228,0,0" VerticalAlignment="Top" Width="150" Height="234" FontSize="13"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="839,183,0,0" VerticalAlignment="Top" Width="120" Click="SaveRightGesture" FontFamily="Segoe WP Light"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="649,183,0,0" VerticalAlignment="Top" Width="120" Click="SaveLeftGesture" FontFamily="Segoe WP Light"/>
     </Grid>
 </Window>

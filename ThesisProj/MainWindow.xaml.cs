@@ -34,13 +34,14 @@ namespace ThesisProj
         /// </summary>
         public MainWindow()
         {
-            _emptyImage = Utility.ConvertImageToBitmapSource(new Image<Bgr, byte>(Utility.HandWidth, Utility.HandHeight, new Bgr(Color.White)));
+            _emptyImage = Utility.ConvertImageToBitmapSource(new Image<Bgr, byte>(10, 10, new Bgr(Color.White)));
 
             _frameProcessor = new FrameProcessor();
             _frameProcessor.DepthReady += FrameProcessor_DepthReady;
             _frameProcessor.LeftImageReady += FrameProcessor_LeftImageReady;
             _frameProcessor.RightImageReady += FrameProcessor_RightImageReady;
-            _frameProcessor.GesturesRecognized += FrameProcessor_GesturesRecognized;
+            _frameProcessor.LeftGestureUpdated += FrameProcessor_LeftGestureUpdated;
+            _frameProcessor.RightGestureUpdated += FrameProcessor_RightGestureUpdated;
 
             _kinect = KinectSensor.GetDefault();
             _kinect.IsAvailableChanged += Kinect_IsAvailableChanged;
@@ -65,7 +66,7 @@ namespace ThesisProj
         /// <summary>
         /// Updates the UI from the new left hand image.
         /// </summary>
-        /// <param name="leftImage">Left hand image</param>
+        /// <param name="hand">Left hand</param>
         private void FrameProcessor_LeftImageReady(Hand hand)
         {
             if (_leftRect != null)
@@ -100,7 +101,7 @@ namespace ThesisProj
         /// <summary>
         /// Updates the UI from the new right hand image.
         /// </summary>
-        /// <param name="rightImage">Right hand image</param>
+        /// <param name="hand">Right hand</param>
         private void FrameProcessor_RightImageReady(Hand hand)
         {
             if (_rightRect != null)
@@ -136,34 +137,44 @@ namespace ThesisProj
         /// <summary>
         /// Notifies the user and executes defined actions for recognized gestures.
         /// </summary>
-        /// <param name="gestures">List of recognized gestures</param>
-        private void FrameProcessor_GesturesRecognized(List<Gesture> leftGestures, List<Gesture> rightGestures)
+        /// <param name="leftGesture">Gesture (or null if none)</param>
+        private void FrameProcessor_LeftGestureUpdated(Gesture leftGesture)
         {
-            if (leftGestures.Count > 0)
+            if (leftGesture != null)
             {
-                String str = "Gesture(s) detected:\n\n";
+                String str = "Gesture detected:\n\n";
 
-                foreach (var g in leftGestures)
-                {
-                    str += g.Name + "\n";
-                }
-
+                str += leftGesture.Name;
+                str += "\nM : " + leftGesture.RecognizedData.ContourMatch.ToString("G5");
+                str += "\nC : " + leftGesture.RecognizedData.HistogramMatch.ToString("G5");
+                str += "\nMxC: " + (leftGesture.RecognizedData.ContourMatch*leftGesture.RecognizedData.HistogramMatch).ToString("G5");
+                str += "\n# of fingers: " + leftGesture.FingersCount;
+                str += "\nDirection: " + "<...>";
+  
                 LeftResult.Text = str;
             }
             else
             {
                 LeftResult.Text = "No gestures detected!";
-            }
+            }  
+        }
 
-
-            if (rightGestures.Count > 0)
+        /// <summary>
+        /// Notifies the user and executes defined actions for recognized gestures.
+        /// </summary>
+        /// <param name="rightGesture">Gesture (or null if none)</param>
+        private void FrameProcessor_RightGestureUpdated(Gesture rightGesture)
+        {
+            if (rightGesture != null)
             {
                 String str = "Gesture(s) detected:\n\n";
 
-                foreach (var g in rightGestures)
-                {
-                    str += g.Name + "\n";
-                }
+                str += rightGesture.Name;
+                str += "\nM : " + rightGesture.RecognizedData.ContourMatch.ToString("G5");
+                str += "\nC : " + rightGesture.RecognizedData.HistogramMatch.ToString("G5");
+                str += "\nMxC: " + (rightGesture.RecognizedData.ContourMatch * rightGesture.RecognizedData.HistogramMatch).ToString("G5");
+                str += "\n# of fingers: " + rightGesture.FingersCount;
+                str += "\nDirection: " + "<...>";
 
                 RightResult.Text = str;
             }
@@ -171,8 +182,6 @@ namespace ThesisProj
             {
                 RightResult.Text = "No gestures detected!";
             }
-
-     
         }
 
         /// <summary>
@@ -182,6 +191,11 @@ namespace ThesisProj
         /// <param name="e">Event</param>
         private void Kinect_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
         {
+            if (!_kinect.IsAvailable)
+            {
+               DepthImage.Source = (ImageSource) Resources["KinectNotAvailable"];
+            }
+
             Console.WriteLine("Kinect status: " + (_kinect.IsAvailable ? "available" : "not available"));
         }
 
@@ -199,7 +213,7 @@ namespace ThesisProj
                 ++_frameCount;
 
                 // Let's drop some frames to increase performance, while keeping fluidity.
-                if (_frameCount%5 == 0)
+                if (_frameCount%3 == 0)
                 {
                     return;
                 }
@@ -208,11 +222,26 @@ namespace ThesisProj
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void SaveLeftGesture(object sender, RoutedEventArgs e)
         {
-            Image<Gray, byte> img = _frameProcessor.FrameBuffer.OldestFrame().RightHand.MaskImage;
-            img.ToBitmap().Save("gesture.jpg");
+            Hand hand = _frameProcessor.FrameBuffer.LatestFrame().LeftHand;
+
+            if (hand != null)
+            {
+                Image<Gray, byte> img = hand.MaskImage;
+                img.ToBitmap().Save("left_gesture.jpg");
+            }
         }
 
+        private void SaveRightGesture(object sender, RoutedEventArgs e)
+        {
+            Hand hand = _frameProcessor.FrameBuffer.LatestFrame().RightHand;
+
+            if (hand != null)
+            {
+                Image<Gray, byte> img = hand.MaskImage;
+                img.ToBitmap().Save("right_gesture.jpg");
+            }
+        }
     }
 }

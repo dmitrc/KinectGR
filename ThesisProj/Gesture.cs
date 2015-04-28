@@ -10,12 +10,23 @@ using Emgu.CV.Structure;
 
 namespace ThesisProj
 {
+    class GestureRecognizedData
+    {
+        public double ContourMatch;
+        public double HistogramMatch;
+    }
 
     class Gesture
     {
         public String Name;
         public Image<Gray, byte> Image;
-        public int FingersCount = 0;
+        public int FingersCount;
+        public GestureRecognizedData RecognizedData = new GestureRecognizedData();
+
+        public Gesture()
+        {
+            
+        }
 
         public Gesture(String name, Image<Gray, byte> img, int fingersCount)
         {

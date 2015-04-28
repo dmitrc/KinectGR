@@ -28,9 +28,13 @@ namespace ThesisProj
         public delegate void RightImageReadyHandler(Hand hand);
         public event RightImageReadyHandler RightImageReady;
 
-        // Define callback that returns recognized gestures.
-        public delegate void GesturesRecognizedHandler(List<Gesture> leftGestures, List<Gesture> rightGestures);
-        public event GesturesRecognizedHandler GesturesRecognized;
+        // Define callback that returns state of left hand's gesture.
+        public delegate void LeftGestureUpdatedHandler(Gesture gesture);
+        public event LeftGestureUpdatedHandler LeftGestureUpdated;
+
+        // Define callback that returns state of right hand's gesture.
+        public delegate void RightGestureUpdatedHandler(Gesture gesture);
+        public event RightGestureUpdatedHandler RightGestureUpdated;
 
 
         private HandRecognizer _leftHandRecognizer = null;
@@ -51,10 +55,11 @@ namespace ThesisProj
 
             gestures.Add(new Gesture("Open hand", "C:/Gestures/open_hand.jpg", 5));
             gestures.Add(new Gesture("Peace", "C:/Gestures/peace.jpg", 2));
-            gestures.Add(new Gesture("Gotcha!", "C:/Gestures/gotcha.jpg", 2));
-            gestures.Add(new Gesture("Obscene gesture", "C:/Gestures/fockoff.jpg", 1));
-            gestures.Add(new Gesture("Spock", "C:/Gestures/spock.jpg", 5));
-            gestures.Add(new Gesture("Rock'n'roll!", "C:/Gestures/rock.jpg", 5));
+            gestures.Add(new Gesture("Spock", "C:/Gestures/spock.jpg", 4));
+            gestures.Add(new Gesture("Rock'n'roll!", "C:/Gestures/rocknroll.jpg", 5));
+            gestures.Add(new Gesture("Pointer", "C:/Gestures/pointer.jpg", 1));
+            gestures.Add(new Gesture("OK", "C:/Gestures/ok.jpg", 3));
+            gestures.Add(new Gesture("Thumbs up!", "C:/Gestures/thumbs_up.jpg", 1));
 
             _leftGestureRecognizer.AddGestures(gestures);
             _rightGestureRecognizer.AddGestures(gestures);
@@ -172,22 +177,27 @@ namespace ThesisProj
             }
 
             // Scan left hand for gestures
-            List<Gesture> leftGestures = new List<Gesture>();
+            Gesture leftGesture = null;
             if (frameData.LeftHand != null)
             {
-                leftGestures = _leftGestureRecognizer.RecognizeGestures(frameData.LeftHand.MaskImage, frameData.LeftHand.Fingers.Count);
+                frameData.LeftGesture = _leftGestureRecognizer.RecognizeGesture(frameData.LeftHand.MaskImage, frameData.LeftHand.FingersCount);
+
+                if (LeftGestureUpdated != null)
+                {
+                    LeftGestureUpdated(frameData.LeftGesture);
+                }
             }
 
             // Scan right hand for gestures
-            List<Gesture> rightGestures = new List<Gesture>();
+            Gesture rightGesture = null;
             if (frameData.RightHand != null)
             {
-                rightGestures = _rightGestureRecognizer.RecognizeGestures(frameData.RightHand.MaskImage, frameData.RightHand.Fingers.Count);
-            }
+                frameData.RightGesture = _rightGestureRecognizer.RecognizeGesture(frameData.RightHand.MaskImage, frameData.RightHand.FingersCount);
 
-            if (GesturesRecognized != null)
-            {
-                GesturesRecognized(leftGestures, rightGestures);
+                if (RightGestureUpdated != null)
+                {
+                    RightGestureUpdated(frameData.RightGesture);
+                }
             }
 
             FrameBuffer.PushFrame(frameData);
