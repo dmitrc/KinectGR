@@ -116,9 +116,9 @@
   
   As a result of this research project, CADDY can be equipped with gesture recognition software, which will definitely be a very valuable addition to already impressive features of the device. With easy extensibility, it will be possible to extend the recognized gesture set and reuse this software in different projects. I feel that enabling people to communicate better and more naturally with the machine may simplify a lot of routine tasks, as well as potentially improve the speed of such communications, which may be crucial in the event of emergency situations.
   
-  \subsection{Outline.}
-  
-  This proposal briefly describes the steps that were taken to implement a working diver's sign language recognition using a depth sensor (on an example of Kinect v2.0). The introduction presents the problem, as well as potential benefits of choosing this particular method. Next, state of the art section describes the overall progress and development in gesture recognition area, featuring some notable examples and experiments. Organizational issues, such as the project timeline, code license, deliverables and evaluation criteria are discussed. Final application, as well as bachelor's thesis will be developed according to specifications defined in this research proposal paper. 
+%  \subsection{Outline.}
+%  
+%  This thesis paper briefly describes the steps that were taken to implement a basic version of diver's sign language recognition using a depth sensor (on an example of Kinect v2.0). The introduction presents the problem, as well as potential benefits of choosing this particular method. Next, state of the art section describes the overall progress and development in gesture recognition area, featuring some notable examples and experiments. Organizational issues, such as the project timeline, code license, deliverables and evaluation criteria are discussed. Final application, as well as bachelor's thesis will be developed according to specifications defined in this research proposal paper. 
   
   \section{State of the art.}
   
@@ -166,7 +166,7 @@ Microsoft has developed an \textbf{in-house SDK}, that is available as free down
 
 Alternative option is using \textbf{libfreenect2}, a UNIX library based on libusb, that allows basic interfacing with Kinect. The current version allows the export of raw unprocessed color, depth and IR data. It also requires basic reprogramming of Kinect sensor to bypass the software requirements and has no methods for matching frames to each other (converting points from one coordinate space to the other). Typically, as done with the first version of Kinect sensor, this data is later used with a generic processing library like \textbf{OpenNI} to calculate skeleton data and allow the use of other features. However, Kinect v2 is still on very early stages of support in OpenNI, not allowing the full skeletal tracking, needed for the scope of this application. Experiments also proved, that frame rate is far below fluent (average 3-5 fps), which is not suitable for this project.\\
 
-As a result, we will base the implementation on native SDK, to allow us to unlock the full potential of the Kinect hardware, while allowing the fluid UI. We will also include \textbf{EmguCV}, a C\# wrapper of OpenCV to allow us to use otherwise complex algorithms, like Contours Detection, Convex Hull and Minimum Area Rectangle.
+As a result, we will base the implementation on native SDK, to allow us to unlock the full potential of the Kinect hardware, while allowing the fluid UI. We will also include \textbf{EmguCV}, a C\# wrapper of OpenCV to allow us to use otherwise complex algorithms, like Contours Detection, Convex Hull and Minimum Area Rotated Rectangle.
  
   \subsection{Gesture set}
 	
@@ -214,11 +214,11 @@ As a result, we will base the implementation on native SDK, to allow us to unloc
   For the purpose of this research project, the following assumptions will be made about the setup and the environment:\\
   
   \begin{itemize}
- \item Kinect is position to minimize the background noise (uncertain values).
+ \item Kinect is positioned to minimize the background noise (uncertain values).
   \item User is located directly in front of the sensor.
   \item View is not obstructed by any object in front of the user.
   \item There is only one user in the frame (multiple user tracking can be easily added, but adds computational intensity).
-  \item When performing a gesture, hand is extended at least 20cm in front of the body.
+  \item When performing a gesture, hand is extended at least 30cm in front of the body.
 \item Gesture recognition will be less robust in the scenario of a fast moving hand, due to the motion blur produced by the sensor
   \end{itemize}
 
@@ -247,14 +247,20 @@ As a result of choosing our depth camera and the SDK, the following system requi
 \item \textbf{MainWindow}\\
 Includes rendering of the main application window, initializing Kinect sensor and displaying the results of the recognition.
 
+\item \textbf{FrameBuffer}\\
+Stores last $n$ frames (in our case, 30) and provides easy access to interpolated frame data and gesture recognition results, that can be used to improve fluidity of the system and is needed for the dynamic gesture recognition.
+
+\item \textbf{FrameProcessor}\\
+Designed as a black box and is responsible for receiving the frame from Kinect, performing all the needed operations on it and storing it in the FrameBuffer. Event-based system is used, allowing to call MainWindow's delegate function to update the UI when needed, removing the necessity to wait for whole frame to process to get visual feedback.
+
 \item \textbf{Utility}\\
 Static class, including most global constants and helper functions, needed in the other classes.
 
 \item \textbf{HandRecognizer}\\
-Being initialized with an overall depth frame, this class is responsible for returning the segmented hand's binary mask.
+Being initialized with an overall depth frame, this class is responsible for returning the segmented hand's binary mask, resized to a specific size for easier processing and comparison later on.
 
 \item \textbf{Hand}\\
-Processes the hand mask to locate and identify points of interest to build a simplified model of a hand.
+Processes the hand mask to locate and identify points of interest and other features to build a simplified model of a hand.
 
 \item \textbf{Gesture}\\
 Represents a configuration of the hand that corresponds to a defined gesture.
@@ -291,11 +297,11 @@ In the algorithm, which detailed in the \textit{Appendix} section, additional ch
 \caption{Hand mask, its contour and minimum area rectangle}
 \end{figure}
 
-Resulting region then will be resized to a constant size (defined as 64x64 in my implementation) to remove variance based on hand's size and orientation of the sides of the bounding box (as suggested by \cite{HI01}). Its contour then is computed to find a rotated minimum area rectangle, that embeds the hand. Since the hand segmentation and following gesture recognition can take a lot of CPU, it will be done on the background thread to reduce the interference with rendering of the UI. 
+Resulting region then will be resized to a constant size (defined as 120x120 in my implementation) to remove variance based on hand's size and orientation of the sides of the bounding box (as suggested by \cite{HI01}).
 
   \subsection{Palm segmentation}
   
-  Before identifying points of interest on our segmented binary image, let's consider which degrees of freedom does the hand allow. On the image below (taken from \cite{OT01}), we can see the general model of hand, as well as all its 26 degrees of freedom. While this model is mostly accurate, there are some people who might anatomically have an extra degree of freedom in their thumb. We will not consider such cases and instead focus on simplified version of the general model with bending angles achievable for an average person. Furthermore, to accommodate the recognition of our simple gesture set, we will consider the finger states as binary (on/off), ignoring the possible bends at the midpoints of the fingers.\\
+ Before identifying points of interest on our segmented binary image, let's consider which degrees of freedom does the hand allow. On the image below (taken from \cite{OT01}), we can see the general model of hand, as well as all its 26 degrees of freedom. While this model is mostly accurate, there are some people who might anatomically have an extra degree of freedom in their thumb. We will not consider such cases and instead focus on simplified version of the general model with bending angles achievable for an average person.\\
   
   \begin{figure}[H]
   \centering
@@ -303,9 +309,9 @@ Resulting region then will be resized to a constant size (defined as 64x64 in my
 \caption{General model of the hand}
 \end{figure}
 
-Next step is to locate so-called "palm point", the center point of the palm, which will help us to identify the palm, segment it and determine approximate orientation of the hand. To do that, we will use an optimized 2D distance transform algorithm (as derived by \cite{DT01}, available in the \textit{Appendix} section), where the matrix of the same size as the mask is filled with distances to the closest pixel boundary. The point with $d[i] = max(d)$ is defined to be a palm point.\\
+Next step is to locate so-called "palm point", the center point of the palm, which will help us to identify the palm, segment it and determine approximate orientation of the hand. To do that, we will use an optimized 2D distance transform algorithm (as derived by \cite{DT01}), where the matrix of the same size as the mask is filled with distances to the closest pixel boundary. The point with $d[i] = max(d)$ (or an average if multiple points of this kind exist) is defined to be a palm point.\\
 
-  Now, let's draw a circle around this point, increasing radius by one every time until non-skin values appear. Such a circle with a maximal radius will encompass the entire palm and is called inner circle. Once we've determined that, we can draw another circle, with the radius larger than inner circle's. Experimental factor of 1.5 was selected to separate the fingers, but retain the thumb even at its larger angle. This larger circle will function as a great mask, allowing us to analyze pixels outside of it for potential finger candidates.\\
+ Now, let's draw a circle around this point, increasing radius every time until non-skin values appear. Such a circle with a maximal radius will encompass the entire palm and is called inner circle. Once we've determined that, we can draw another circle, with the radius larger than inner circle's. Experimental factor of 1.5 was selected to separate the fingers, but retain the thumb even at its larger angle. This larger circle will function as a great mask, allowing us to analyze pixels outside of it for potential finger candidates.\\
 
 The result of palm segmentation is illustrated at the image below:\\
 
@@ -339,34 +345,72 @@ The values of this ratio can be analyzed, using the robust constants as suggeste
 \item $3.4 <= \lambda < 4.4$ : 4 fingers in the region
 \item $\lambda >= 4.4$: Discard the case as anatomically impossible.
 \end{itemize}
-
-\subsection{Finger classification}
-
-After we have a list of segmented finger regions and their basic properties, we can attempt to identify the displayed fingers to use later in the gesture recognition. This proved as a very non-trivial task, considering multitude of states hand can be in and its orientation. Therefore, we have to consider the identification methods, that are invariant to the hand's rotation and number (and position) of fingers present.\\
-
-Current research indicates that its extremely challenging to find two points that will yield a reliable vector in every case. However, the idea would be to draw a major principal axis, a line going from the wrist to the tip of the middle finger, that will separate the hand mask in two based on the "pixel mass" distribution. Then, we can calculate an angle of a vector from fingertip to the palm center with respect to this line. We will notice that all the fingers, but thumb will lie within a 45 degree range, allowing us to accurately select the thumb, as well as filter all the other regions, that might have been accidentally classified as fingers. Once we identify the position of the thumb, we can process the remaining figures based on their position with respect to the thumb and offset on the line, parallel to the finger base, drawn through the center of inner circle.\\
-
-(Perfecting the algorithm used in this section is still in works, and will probably change by the time of the final submission).
  
-  \subsection{Recognizing static gestures}
+\subsection{Recognizing static gestures}
   
-Now that we can detect and identify individual fingers, static gestures can be recognized using a simple rule classifier. In our case, the hand gesture can be predicted, based on the number and indexes of the visible fingers. For example, if two fingers, index and middle one, are visible, gesture \textbf{s8} will be recognized.\\
+Now that we can build a simplified model of the hand, we can try to compare the hand to the set of predefined gestures to return the closest match. All the gestures are stored as JPEG files in \textit{Gestures} directory, representing the mask of the hand. When initialized, an additional argument is passed to the constructor, which is the number of fingers displayed (to avoid further computations).
 
-In some of the cases (like \textbf{s1/s2} and \textbf{s5/s6}), the direction vector of a finger will be determined with regards to the inner circle, to determine which direction is the finger pointing to and choose the respective action. Additionally, since both hands are being tracked at the same time, more complex gestures can be defined using the combination of two hands (here, \textbf{s9}).
+Then, for every recognized model of the hand, the following methods are used to determine whether it represents a gesture:\\
+
+\begin{itemize}
+\item \textbf{Number of fingers comparison.}\\
+Obviously, if the number of fingers on the hand doesn't match the desired one for the particular gesture, we should halt the computation immediately and jump to the next gesture. This check ensures that fewer contours are being analyzed and compared and allows us to increase the cutoff constants for the next two methods to allow more variation in the overall hand shape.\\
+
+\item \textbf{Contour match.}\\
+As a first step, we extract the contours from both the gesture image and original hand's mask image. Then, we can use the following formula to return the similarity between two contours:
+\[ I(A,B) = max_{i=1..7} \frac{|m_i^A - m_i^B|}{|m_i^A|} \]
+\[  m_i^A = sign_i^A * log (h_i^A) \]
+\[  m_i^B = sign_i^B * log (h_i^B )\]
+
+Here, $h_i^A$ and $h_i^B$ represent Hu moments of an image. Since the specific properties of Hu moments are rotation and scale invariance, this will allow us to detect gestures even when the hand is rotated.
+
+It's important to note, however, that since we're detecting gestures in 2D space of a depth frame, rather than 3D space, some gestures may stop being recognized if the overall contour changes too much due to different perspective of a hand for the camera.  If the environment assumptions are fulfilled and hand is fully extended in front of the body, these problems will not arise.
+
+After analyzing the output of the algorithm, a cutoff threshold for similarity was chosen to be 0.80.\\
+
+\item \textbf{Histogram match.}\\
+Since contour of the hand can be quite similar for different gestures, it's not enough to reliably determine whether a particular gesture has been shown. To solve this problem we will need to find another comparison metric, that would add confidence to our recognized gesture.
+
+One of such metrics can be derived by calculating and comparing the 2D pair-wise geometrical histograms (PGH) of the images. The algorithm will calculate the angle and minimum/maximum distances for every pair of edges in the contour. This is done by selecting each of the edges as a base, while the function is looping through all other edges, recording distances from the points on the non-base edge and line of the base edge. The angle will define a row of the histogram in which all the bins that represent the distance between retrieved minimum and maximum distances are incremented.
+
+The results are then normalized, to prevent the errors in the situation when two images are not of the same size. Finally two resulting PGHs are compared using Bhattacharyya distance, that is commonly used to measure similarity between two probability distributions:
+\[ d(H_1, H_2) = \sqrt{1- \frac{1}{ \sqrt{H_1^{-} H_2^{-} N^2}}  \sum\limits_{I} \sqrt{H_1(I) H_2(I)}} \] 
+
+After analyzing the output of the algorithm, a cutoff threshold for similarity was chosen to be 0.20.\\
+
+\end{itemize}
+
+In addition, another small threshold value is used for the product of the results of contour match and histogram match (cutoff threshold = 0.01). That ensures, that even if one of the values fluctuates, the overall similarity factor is very high.
+
+Using this comparison method, the hand will be evaluated against the entire gesture set and the closest match satisfying the cutoff constraints will be returned.
+
+In some of the cases (like \textbf{s1/s2} and \textbf{s5/s6}), the direction vector will be determined with regards to the inner circle, to determine which direction is the finger pointing to and choose the respective action. Additionally, since both hands are being tracked at the same time, more complex gestures can be defined using the combination of two hands (here, \textbf{s9}).
+
+Since the algorithm relies heavily on shape and contour of the hand, it is possible that recognition results and precision may vary from a person to person. However, because of this nature of storing gestures as pictures, it's trivial to adapt the system to a particular user's hand to improve the reliability of the recognition algorithm. To do that, user has to show a desired gesture, press the "Save" button, and replace the existing gesture image (or add the new one) with the one outputted to the directory, from which the program is launched. 
+
+//pichere\\\\
 
 \subsection{Recognizing dynamic gestures}
   
-Dynamic gestures are built upon the methods used to recognize static gestures, however it is not enough to describe the motion. Therefore, each particular dynamic gesture will have its own detection function, based on the number of applicable parameters.\\
+Since dynamic gestures are happening across multiple frames, simple frame-by-frame analysis (as used for static gesture recognition) is not enough. Instead, we will retrieve the latest $n$ frames, stored in the frame buffer and analyze whether their features correspond to requirements set by the gesture. Here are some of the features, that we are interested in:
 
-Simple state machine can be used to track the progress of the gesture. We start by recognizing a static hand gesture and checking whether it corresponds to the initial (starting) state of any of the dynamic gestures. If it does, the state of the machine is changed to "listening", which analyzes next consecutive frames against the requirements for a gesture . For the gestures \textbf{d1} and \textbf{d2}, for example, the global offset of the hand from the elbow will be monitored. If no movement of a sufficient offset was detected before timeout $t$, the corresponding static gesture (if any) will be executed. However, if hand movement is detected, a timer for the minimum duration of the gesture is setup and hand position is continued to be analyzed. If back-and-forth movement continues with defined offsets, a dynamic gesture is recognized. Based on the intensity of the movement (which can be calculated using deltas and timestamps of the frames), priority is being assigned to the task.\\
+\begin{itemize}
+\item Depth data of the frame.
+\item Position and relative offset of the joints.
+\item Position of hand's bounding box.
+\item Number of fingers shown.
+\item Static gesture(s) recognized.
+\end{itemize}
+ 
+For example, for gestures \textbf{d1} and \textbf{d2} we will analyze the last 30 frames (corresponding to roughly 1 second). Since the static gesture can not be successfully recognized in some cases due to motion blur, we will not impose strict requirements for all frames to match the required gesture. Instead, let's say that if gesture has been recognized in more than 80\% of frames, it will count as a successful recognition. Additionally, we track relative positions of elbow and hand joints, allowing us to build a simple state machine logic. We are starting in a neutral resting state, then we track displacement to the left and to the right. If it follows the "wave" pattern (movement to the left then to the right), the corresponding gesture is recognized.
 
-Some of the dynamic gestures, however, don't require moving hands. In our gesture set, \textbf{d3} will consist of no movement, but rapid changing of hand expressions. In this case, similarly, after recognizing the initial hand expression, the function will check whether the static gesture state has altered within some timeout $t$. Choosing sufficiently small timeout value will allow our robot to detect gestures in general without critical pauses in between, but watch out for the dynamics of the gesture as well.
-  
-  \section{Evaluation.}
+In a case of \textbf{d3}, we can only the static gestures recognized. If we can notice the trend of rapid change from open hand to closed fist across the analyzed frames, we can judge that this gesture has been displayed. 
+
+\section{Final deliverable.}
+ 
+ \section{Evaluation.}
   
  Evaluation criteria for this research project are strongly coupled with the project requirements and implementation quality. The project is assessed against the following criteria, that can be used to evaluate the results of this thesis:
-  
-\textbf{The following evaluations are based on the current state of the project (as of 04/03/2015). Until the final submission, algorithms will be modified to be more robust and allow for better experimental results.}\\
 
   \begin{itemize}
   \item \textbf{Functionality.} \\
@@ -419,7 +463,7 @@ I would like to thank all the people, who helped me to succeed with implementing
 \item Finally, there is no way I would reach where I am now without my family and friends - I thank them for their support and for making me the person, that I am today.
 \end{itemize}
 
-  \newpage
+ \newpage
 
 \section{Appendix}
 
