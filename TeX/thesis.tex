@@ -440,11 +440,16 @@ Either of the following two methods can be used to try the final application for
 
 \subsection{GUI.}
 
-%!
-%Add a picture of application's GUI
+  \begin{figure}[H]
+  \centering
+  %! Fix scale
+  \includegraphics[scale=1]{app-gui.png}
+\caption{Application's interface}
+\end{figure}
 
 \begin{enumerate}
-\item Depth frame from Kinect data, on which hand regions are highlighted, if detected. If Kinect is not connected an error is displayed here.
+\item Depth frame from Kinect data. If Kinect is not connected an error is displayed here.
+\item Box representing position of the detected hand.
 \item Mask image of a hand with important points marked.
 \item Static gestures that were recognized. Similarity product and direction are displayed for recognized gestures.
 \item Dynamic gestures that were recognized.
