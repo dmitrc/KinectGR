@@ -17,7 +17,7 @@ namespace ThesisProj
         public String Hand;
     }
 
-    public class Gesture
+    public class Gesture : IDisposable
     {
         public String Name;
         public Image<Gray, byte> Image;
@@ -43,6 +43,13 @@ namespace ThesisProj
         public void ExportAs(String filename)
         {
             Image.ToBitmap().Save(filename);
+        }
+
+        public void Dispose()
+        {
+           Image.Dispose();
+           Name = null;
+           RecognizedData = null;
         }
     }
 

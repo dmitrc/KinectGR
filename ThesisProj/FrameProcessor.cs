@@ -31,11 +31,11 @@ namespace ThesisProj
         public event RightImageReadyHandler RightImageReady;
 
         // Define callback that returns state of left hand's gesture.
-        public delegate void LeftGestureUpdatedHandler(Gesture gesture);
+        public delegate void LeftGestureUpdatedHandler(Gesture gesture, Direction direction);
         public event LeftGestureUpdatedHandler LeftGestureUpdated;
 
         // Define callback that returns state of right hand's gesture.
-        public delegate void RightGestureUpdatedHandler(Gesture gesture);
+        public delegate void RightGestureUpdatedHandler(Gesture gesture, Direction direction);
         public event RightGestureUpdatedHandler RightGestureUpdated;
 
         // Define callback that returns state of left hand's dynamic gesture.
@@ -208,22 +208,22 @@ namespace ThesisProj
             // Scan left hand for gestures
             if (frameData.LeftHand != null)
             {
-                frameData.LeftGesture = _leftGestureRecognizer.RecognizeGesture(frameData.LeftHand.MaskImage, frameData.LeftHand.FingersCount);
+                frameData.LeftGesture = _leftGestureRecognizer.RecognizeGesture(frameData.LeftHand.MaskImage, frameData.LeftHand.Fingers.Count);
 
                 if (LeftGestureUpdated != null)
                 {
-                    LeftGestureUpdated(frameData.LeftGesture);
+                    LeftGestureUpdated(frameData.LeftGesture, frameData.LeftHand.Direction);
                 }
             }
 
             // Scan right hand for gestures
             if (frameData.RightHand != null)
             {
-                frameData.RightGesture = _rightGestureRecognizer.RecognizeGesture(frameData.RightHand.MaskImage, frameData.RightHand.FingersCount);
+                frameData.RightGesture = _rightGestureRecognizer.RecognizeGesture(frameData.RightHand.MaskImage, frameData.RightHand.Fingers.Count);
 
                 if (RightGestureUpdated != null)
                 {
-                    RightGestureUpdated(frameData.RightGesture);
+                    RightGestureUpdated(frameData.RightGesture, frameData.RightHand.Direction);
                 }
             }
 

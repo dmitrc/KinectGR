@@ -140,7 +140,7 @@ namespace ThesisProj
         /// Notifies the user and executes defined actions for recognized gestures.
         /// </summary>
         /// <param name="leftGesture">Gesture (or null if none)</param>
-        private void FrameProcessor_LeftGestureUpdated(Gesture leftGesture)
+        private void FrameProcessor_LeftGestureUpdated(Gesture leftGesture, Direction direction)
         {
             if (leftGesture != null)
             {
@@ -150,8 +150,8 @@ namespace ThesisProj
                 //str += "\nM : " + leftGesture.RecognizedData.ContourMatch.ToString("G5");
                 //str += "\nC : " + leftGesture.RecognizedData.HistogramMatch.ToString("G5");
                 str += "\nMxC: " + (leftGesture.RecognizedData.ContourMatch*leftGesture.RecognizedData.HistogramMatch).ToString("G5");
-                //str += "\n# of fingers: " + leftGesture.FingersCount;
-                //str += "\nDirection: " + "<...>";
+                str += "\n# of fingers: " + leftGesture.FingersCount;
+                str += "\nDirection: " + Utility.DirectionToString(direction);
   
                 LeftResult.Text = str;
             }
@@ -165,7 +165,7 @@ namespace ThesisProj
         /// Notifies the user and executes defined actions for recognized gestures.
         /// </summary>
         /// <param name="rightGesture">Gesture (or null if none)</param>
-        private void FrameProcessor_RightGestureUpdated(Gesture rightGesture)
+        private void FrameProcessor_RightGestureUpdated(Gesture rightGesture, Direction direction)
         {
             if (rightGesture != null)
             {
@@ -175,8 +175,8 @@ namespace ThesisProj
                 //str += "\nM : " + rightGesture.RecognizedData.ContourMatch.ToString("G5");
                 //str += "\nC : " + rightGesture.RecognizedData.HistogramMatch.ToString("G5");
                 str += "\nMxC: " + (rightGesture.RecognizedData.ContourMatch * rightGesture.RecognizedData.HistogramMatch).ToString("G5");
-                //str += "\n# of fingers: " + rightGesture.FingersCount;
-                //str += "\nDirection: " + "<...>";
+                str += "\n# of fingers: " + rightGesture.FingersCount;
+                str += "\nDirection: " +  Utility.DirectionToString(direction);
 
                 RightResult.Text = str;
             }

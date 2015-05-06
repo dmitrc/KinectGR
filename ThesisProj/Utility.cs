@@ -103,7 +103,6 @@ namespace ThesisProj
             return (ux * vy - vx * uy);
         }
 
-
         [DllImport("gdi32")]
         private static extern int DeleteObject(IntPtr o);
 
@@ -284,6 +283,30 @@ namespace ThesisProj
 
             int stride = FrameWidth * format.BitsPerPixel / 8;
             return BitmapSource.Create(FrameWidth, FrameHeight, 96, 96, format, null, pixelData, stride);
+        }
+
+        public static String DirectionToString(Direction direction)
+        {
+            if (direction == Direction.DirectionDown)
+            {
+                return "Down";
+            }
+            else if (direction == Direction.DirectionRight)
+            {
+                return "Right";
+            }
+            else if (direction == Direction.DirectionUp)
+            {
+                return "Up";
+            }
+            else if (direction == Direction.DirectionLeft)
+            {
+                return "Left";
+            }
+            else
+            {
+                return "Unknown";
+            }
         }
     }
 }

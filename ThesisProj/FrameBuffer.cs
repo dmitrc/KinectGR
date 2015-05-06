@@ -41,7 +41,7 @@ namespace ThesisProj
         // ...
     }
 
-    class FrameBuffer
+    class FrameBuffer : IDisposable
     {
         private List<FrameData> _queue = new List<FrameData>();
         private const int FRAME_BUFFER_SIZE = 35;
@@ -158,6 +158,12 @@ namespace ThesisProj
 
             _mutex.ReleaseMutex();
             return features;
+        }
+
+        public void Dispose()
+        {
+            _mutex.Dispose();
+            _queue = null;
         }
     }
 }
