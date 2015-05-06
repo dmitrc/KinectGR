@@ -173,7 +173,9 @@ As a result, we will base the implementation on native SDK, to allow us to unloc
     The following basic gesture set has been selected for the purposes of this project. Default semantics of those gestures are described, and the basic actions are assigned to them, based on some of the suggestions presented in CADDIAN language draft \cite{AB01}. Let's separate all the gestures into two kinds: \textbf{static}, corresponding to a single hand expression and \textbf{dynamic},  building upon the static ones, but also tracking hand animation (such as movement or a sequence of changing states). This list is meant only as the initial draft and should be easily extensible, once more features are needed.
     
     \subsubsection{Static gestures}
-    
+%!
+%Change the gesture set to the finalized one    
+
   \begin{figure}[H]
   \centering
   \includegraphics[scale=0.4]{static-gestureset.png}
@@ -196,7 +198,9 @@ As a result, we will base the implementation on native SDK, to allow us to unloc
     \end{itemize}
     
     \subsubsection{Dynamic gestures}
-    
+ %!
+%These gesture descriptions are pathetic.
+
   \begin{figure}[H]
   \centering
   \includegraphics[scale=0.5]{dynamic-gestureset.png}
@@ -284,11 +288,11 @@ After the frames are captured, the raw depth data in retrieved as \textit{ushort
 
   \subsection{Hand segmentation}
   
-As a next step, we will analyze a pixel neighborhood, corresponding to hand joints, returned by the sensor. If those pixels are not a part of the body (in the other words, are in the background), we can judge that Kinect didn't return the right values for this frame and, therefore, can skip all the further processing. In the other case, a modified Scanline FloodFill algorithm will be used to segment and draw the binary mask of the hand. This particular version of algorithm was chosen for its superior efficiency, analyzing the lines of an image as opposed to individual pixels, resulting in much smaller queue size and thus, less iterations.\\
+As a next step, we will analyze a pixel neighborhood, corresponding to hand joints, returned by the sensor. If those pixels are not a part of the body (in the other words, are in the background), we can judge that Kinect didn't return the right values for this frame and, therefore, can skip all the further processing. In the other case, a modified Scanline FloodFill algorithm (see Appendix, 10.1) will be used to segment and draw the binary mask of the hand. This particular version of algorithm was chosen for its superior efficiency, analyzing the lines of an image as opposed to individual pixels, resulting in much smaller queue size and thus, less iterations.\\
 
 Instead of using a generic threshold in both directions, two separate thresholds will be used: one large one to apply to values closer than the hand's center (to ensure capturing of all the possible hand positions) and a smaller one to analyze values further away. That can be used only based on our previous assumption, that the hand is the closest object in sensor, allowing us to assume that no objects will interfere with forward thresholding. Additional check is implemented to check the distance from the hand's Z coordinate to the corresponding shoulder's Z coordinate (or head, if not available), that is aimed to minimize the number of cases, where the backwards threshold is large enough to segment bigger regions of the body, returning the data not suitable for proper gesture recognition.\\
 
-In the algorithm, which detailed in the \textit{Appendix} section, additional check (denoted with \textit{BeyondWrist}) is made to crop values behind the wrist line. That is performed by disregarding all the pixels, projections of which on the plane, described by $v = (handX - wristX, handY - wristY)$, as returned by the Kinect sensor, are below the wrist point. However, due to noise in processing such a small region, often mistakes occur where the wrist point jumps and some fingers are being mistakenly cropped. That's why the current implementation doesn't rely on this and instead attempts to achieve different means of classifying the wrist region later on. Should a special identifying marker be allowed or additional calibration of Kinect  to return more precise coordinates, this method would return a very accurate representation of the wrist line.\\
+In the algorithm, there is an additional check (denoted with \textit{BeyondWrist}) is made to crop values behind the wrist line. That is performed by disregarding all the pixels, projections of which on the plane, described by $v = (handX - wristX, handY - wristY)$, as returned by the Kinect sensor, are below the wrist point. However, due to noise in processing such a small region, often mistakes occur where the wrist point jumps and some fingers are being mistakenly cropped. That's why the current implementation doesn't rely on this and instead attempts to achieve different means of classifying the wrist region later on. Should a special identifying marker be allowed or additional calibration of Kinect  to return more precise coordinates, this method would return a very accurate representation of the wrist line.\\
 
   \begin{figure}[H]
   \centering
@@ -309,7 +313,7 @@ Resulting region then will be resized to a constant size (defined as 120x120 in 
 \caption{General model of the hand}
 \end{figure}
 
-Next step is to locate so-called "palm point", the center point of the palm, which will help us to identify the palm, segment it and determine approximate orientation of the hand. To do that, we will use an optimized 2D distance transform algorithm (as derived by \cite{DT01}), where the matrix of the same size as the mask is filled with distances to the closest pixel boundary. The point with $d[i] = max(d)$ (or an average if multiple points of this kind exist) is defined to be a palm point.\\
+Next step is to locate so-called "palm point", the center point of the palm, which will help us to identify the palm, segment it and determine approximate orientation of the hand. To do that, we will use an optimized 2D distance transform algorithm (as derived by \cite{DT01}, implementation details in Appendix, 10.2), where the matrix of the same size as the mask is filled with distances to the closest pixel boundary. The point with $d[i] = max(d)$ (or an average if multiple points of this kind exist) is defined to be a palm point.\\
 
  Now, let's draw a circle around this point, increasing radius every time until non-skin values appear. Such a circle with a maximal radius will encompass the entire palm and is called inner circle. Once we've determined that, we can draw another circle, with the radius larger than inner circle's. Experimental factor of 1.5 was selected to separate the fingers, but retain the thumb even at its larger angle. This larger circle will function as a great mask, allowing us to analyze pixels outside of it for potential finger candidates.\\
 
@@ -388,7 +392,8 @@ In some of the cases (like \textbf{s1/s2} and \textbf{s5/s6}), the direction vec
 
 Since the algorithm relies heavily on shape and contour of the hand, it is possible that recognition results and precision may vary from a person to person. However, because of this nature of storing gestures as pictures, it's trivial to adapt the system to a particular user's hand to improve the reliability of the recognition algorithm. To do that, user has to show a desired gesture, press the "Save" button, and replace the existing gesture image (or add the new one) with the one outputted to the directory, from which the program is launched. 
 
-//pichere\\\\
+%!
+%Add a picture with a Save button here
 
 \subsection{Recognizing dynamic gestures}
   
@@ -402,11 +407,54 @@ Since dynamic gestures are happening across multiple frames, simple frame-by-fra
 \item Static gesture(s) recognized.
 \end{itemize}
  
+%!
+%Add explanation of dynamic gesture types here
+
 For example, for gestures \textbf{d1} and \textbf{d2} we will analyze the last 30 frames (corresponding to roughly 1 second). Since the static gesture can not be successfully recognized in some cases due to motion blur, we will not impose strict requirements for all frames to match the required gesture. Instead, let's say that if gesture has been recognized in more than 80\% of frames, it will count as a successful recognition. Additionally, we track relative positions of elbow and hand joints, allowing us to build a simple state machine logic. We are starting in a neutral resting state, then we track displacement to the left and to the right. If it follows the "wave" pattern (movement to the left then to the right), the corresponding gesture is recognized.
 
 In a case of \textbf{d3}, we can only the static gestures recognized. If we can notice the trend of rapid change from open hand to closed fist across the analyzed frames, we can judge that this gesture has been displayed. 
 
 \section{Final deliverable.}
+
+\subsection{Installation.}
+
+Either of the following two methods can be used to try the final application for yourself. Please ensure that your hardware exceeds the minimum requirements and Kinect 2.0 sensor is connected.
+
+\subsubsection{Download built executable (32-bit).}
+
+\begin{itemize}
+\item Install drivers from Kinect SDK 2.0 (if needed).
+\item Download and extract \href{https://github.com/dmitryfd/KinectGR}{\textit{the latest build}}.
+\item Run the executable!
+\end{itemize}
+
+\subsubsection{Build the solution.}
+
+\begin{itemize}
+\item Install Kinect SDK 2.0, EmguCV and Visual Studio 2013+ (if needed).
+\item Download the solution from \href{https://github.com/dmitryfd/KinectGR}{\textit{the Github repositiory}}.
+\item Launch the solution and ensure that EmguCV and Kinect SDK references are set correctly, and OpenCV dlls are being copied to the build path. 
+\item Copy \textbf{Gestures} folder to \textit{C:/Gestures} (or change the paths in FrameProcessor.cs).
+\item Build (in x86 mode) and run! \\Don't forget to connect your Kinect to a compatible USB 3.0 port.
+\end{itemize}
+
+\subsection{GUI.}
+
+%!
+%Add a picture of application's GUI
+
+\begin{enumerate}
+\item Depth frame from Kinect data, on which hand regions are highlighted, if detected. If Kinect is not connected an error is displayed here.
+\item Mask image of a hand with important points marked.
+\item Static gestures that were recognized. Similarity product and direction are displayed for recognized gestures.
+\item Dynamic gestures that were recognized.
+\item Save the current hand mask to an image file (can be used for gesture sets).
+\end{enumerate}
+
+\subsection{Features.}
+
+%!
+%Write this
  
  \section{Evaluation.}
   
@@ -414,37 +462,40 @@ In a case of \textbf{d3}, we can only the static gestures recognized. If we can 
 
   \begin{itemize}
   \item \textbf{Functionality.} \\
-Application successfully detects the fingers, displayed in a frame, invariant of the hand rotation and the presence of multiple fingers in the region. Furthermore, a basic classification is applied that aims to detect the thumb, among the fingers, to correctly continue with identification. However, due to the extreme noise in the data, provided by the Kinect sensor, the reliability of this is yet to be improved (by finding a reliable vector that can be used as a basis for angle calculation). Therefore, gesture recognition works only in the "perfect" cases and will be improved to be completely robust in the following research.
+Application successfully implements all the features, described in this thesis paper. One user is being tracked and hand segmentation starts while all the environment assumptions are fulfilled (e.g. hand extended at least 30 cm in front of the body). Then, it attempts to recognize a static gesture and displays the results. Finally, sequence of frames is analyzed to notify the user about dynamic gestures recognized (if any).
 
-  \item \textbf{Correctness.} \\
-10 test subjects of different gender and varying hand features were asked to use the application to analyze it for correctness. Experiment produced the following results:\\
-
-\begin{itemize}
-\item Hand is being correctly segmented in 100\% of the applicable cases.
-\item Hand is being correctly ignored, based on all of the conditions (frontmost object in the frame, far enough from the body). The only case, that failed for 4 out of 10 participants, was the one, where user would be standing sideways (which is not a defined use case for our application). Then, shoulder Z coordinate would not be a reliable reference anymore, causing a bigger region (the entire arm) to be segmented. This can be improved by analyzing more joint values to detect the incorrect position of user with respect to the sensor.
-\item Fingers were correctly located in 100\% of the cases, where hand was positioned normally (even when there were multiple fingers within a region). After testing with variant hand orientations, the success rate slightly drops to 70\%, based on accurateness of Kinect joint data.  A better wrist approximation would allow to immediately fix all of this cases, detecting the hand in every situation.
-\item Static gestures were correctly recognized only in those cases, where hand was positioned perfectly and Kinect located the thumb point successfully, which results to about 5-10\% success rate. Once we will achieve the complete invariance, that was described above, expected success rate is 80-85\%, based on the inaccuracies in Kinect data and hardly recognizable (distorted) hand positions.
-\item Dynamic gestures were not implemented yet, since all the work has been focused on improving the results of the previous steps. However, sampling points from various Kinect joints proved the correctness of the proposed algorithm in 95\% of test cases for every participant.
-\end{itemize}
+%!
+ \item \textbf{Correctness.} \\
+%10 test subjects of different gender and varying hand features were asked to use the application to analyze it for correctness. Experiment produced the following results:\\
+%
+%\begin{itemize}
+%\item Hand is being correctly segmented in 100\% of the applicable cases.
+%\item Hand is being correctly ignored, based on all of the conditions (frontmost object in the frame, far enough from the body). The only case, that failed for 4 out of 10 participants, was the one, where user would be standing sideways (which is not a defined use case for our application). Then, shoulder Z coordinate would not be a reliable reference anymore, causing a bigger region (the entire arm) to be segmented. This can be improved by analyzing more joint values to detect the incorrect position of user with respect to the sensor.
+%\item Fingers were correctly located in 100\% of the cases, where hand was positioned normally (even when there were multiple fingers within a region). After testing with variant hand orientations, the success rate slightly drops to 70\%, based on accurateness of Kinect joint data.  A better wrist approximation would allow to immediately fix all of this cases, detecting the hand in every situation.
+%\item Static gestures were correctly recognized only in those cases, where hand was positioned perfectly and Kinect located the thumb point successfully, which results to about 5-10\% success rate. Once we will achieve the complete invariance, that was described above, expected success rate is 80-85\%, based on the inaccuracies in Kinect data and hardly recognizable (distorted) hand positions.
+%\item Dynamic gestures were not implemented yet, since all the work has been focused on improving the results of the previous steps. However, sampling points from various Kinect joints proved the correctness of the proposed algorithm in 95\% of test cases for every participant.
+%\end{itemize}
 
 \item \textbf{Modularity.} \\
-Adding new gestures to the application is trivially simple. A new Gesture object is created, describing the set of features needed to recognize the gesture and the desired callback. This object is later added to an array, maintained by GestureRecognizer to immediately enable it for processing. \\
-Similar approach is used with dynamic gestures, except the additional step, which is overwriting the \textit{Evaluate()} function, that will implement the basic state machine and monitor the position of the hand across successive frames.
+Because of the way the application is structured, it's very easy to alter specific parts of the system, while leaving the others intact. As described in the previous section, changing the gesture set of the application and adapting the program for a particular need is intuitive and simple. This successfully fulfills the goals set in the proposal part of the project and allows for easier adaptation later on.
 
   \item \textbf{Code Quality and Documentation.} \\
-Class structure presented above proves a very efficient way of separating this application, where each class has its own distinctive purpose and scope. Variables and methods have descriptive names, and overall C\# code design guidelines were enforced (checked using JetBrains' plugin, called Resharper).\\
-Writing proper documentation is still a work-in-progress, but on the moment of final submission, there will be a complete generated HTML documentation included, describing every method, class variables and class completely (similar to Doxygen style). Furthermore, all details of the algorithms which were not intuitive have a short descriptions next to them, allowing people who build on top of this code to easily understand and tweak the working mechanics of this application.
+Strict C\# code design guidelines were enforced over the course of development, using JetBrains' Resharper plugin. Each class has its own  purpose and scope, variables and methods have descriptive names, and comments are supplied in places where code is non-trivial. Finally, XML-style comments for classes and methods allow to easily generate HTML documentation pages (using Sandcastle).
 
   \item \textbf{Testing.}\\ 
-Over the course of development I was adhering to \textbf{test-driven development} to minimize the time spent on fixing bugs and narrowing the source of potential problems. Small unit tester was written for every component of the application to assess the result of the operations we are relying on (for example, initializing the Kinect sensor) and implemented complex algorithms (like DT and FloodFill). That allowed me to be confident in the algorithms' correctness and instead focus on filtering the noise in sensor's measurements and input data. All the actual results were tested using a live demo to account for environment noise (application works perfectly when seeded with correct hand masks). 
+Over the course of development I was adhering to \textbf{test-driven development} to minimize the time spent on fixing bugs and narrowing the source of potential problems. Separate test suite was written with unit tests for every component of the application. That helped me over the course of development to assess the result of the operations algorithms were relying on (e.g. reading data from hardware or performing a Flood Fill algorithm). That way I could be more confident about the algorithms' correctness and instead focus on improving the overall recognition success rate. Most of the testing has been performed with a live Kinect stream to account for potential noise in the data stream.
 
   \end{itemize}
 
 \section{Discussion.}
 
+%!
+%I think this can be done better.
 \subsection{Improving the results.}
 Given the precise skeletal tracking, which sadly is not completely reliable with the Kinect SDK, much better approximation of the wrist line and location of the fingers can be made, skipping a lot of computation that we are doing to calculate the trusted points. Furthermore, if a state of a thumb is returned, we can make immediate assumptions about the state of the hand, again, simplifying the recognition a lot.
 
+%!
+%This should be changed completely.
 \subsection{Extending the application for more complex cases.}
 Depth mask of the hand can be reused to calculate the differences in depth at midpoints and towards the fingertip to yield a better approximation of the general model of the hand. That will allow to define more features to describe the gesture and thus, expand the recognition far beyond the simple gesture set. Multiple sources familiar with gesture recognition recommend using Hidden Markov Models for such cases to define a machine learning algorithm that automatically gathers a set of relevant features from all of the available data. Application could then be extended to include a "learning mode", where user can add a new gesture to the set of available ones simply by training the algorithm on the number of applicable cases under different environment conditions.
   
@@ -470,17 +521,17 @@ I would like to thank all the people, who helped me to succeed with implementing
 \subsection{FloodFill implementation}
 
 \begin{verbatim}
-FloodFillCheck (x, y, startDepth, mask) : bool
-     if (!IsValidPoint(x, y)) return false
-     if (depth[x, y] is not reliable) return false
-     if (mask[x, y] is already marked) return false
-     if (depth[x, y] > startDepth + bwdThreshold) return false
-     if (depth[x, y] < startDepth - fwdThreshold) return false
-     // if (BeyondWrist(x, y) return false (!)
-     return true
+FloodFillCheck (x, y, startDepth, mask) : Bool
+     if (!IsValidPoint(x, y)) return False
+     if (depth[x, y] is not reliable) return False
+     if (mask[x, y] is already marked) return False
+     if (depth[x, y] > startDepth + bwdThreshold) return False
+     if (depth[x, y] < startDepth - fwdThreshold) return False
+     // if (BeyondWrist(x, y) return False (!)
+     return True
 
 FloodFill (startPoint, startDepth) : Hand
-     Queue q, Bool[] mask
+     Queue q, Bool mask[w*h]
      minX = minY = +Infinity
      maxX =  maxY = -Infinity
 
@@ -512,6 +563,75 @@ FloodFill (startPoint, startDepth) : Hand
      return Hand(position, mask)
 
 \end{verbatim}
+
+
+\newpage
+\subsection{2D Distance Transform implementation}
+
+\begin{verbatim}
+DistanceTransform1D (arr, n) : Double[]
+    Int v[n], Double z[n+1], Int k = 0, Double s = 0
+    v[0] = 0, z[0] = -Infinity, z[1] = +Infinity
+
+    for (int i =1; i < n; ++i)
+         s = ((arr[i] + i * i) - (arr[v[k]] + v[k] * v[k])) / 
+             (2.0 * i - 2.0 * v[k]);
+
+         while (s <= z[k])
+             --k, s = ((arr[i] + i * i) - (arr[v[k]] + v[k] * v[k])) / 
+                      (2.0 * i - 2.0 * v[k]);
+
+    ++k, v[k] = i, z[k] = s, z[k + 1] = +Infinity
+
+    k = 0, Double result[n]
+
+    for (int i = 0; i < n; i++)
+        while (z[k + 1] < i) ++k
+        result[i] = ((i - v[k]) * (i - v[k]) + arr[v[k]])
+
+    v = null, z = null
+    return result
+
+DistanceTransform2D (mask) : Double[]
+    Double result[w*h], Double tmp[w*h]
+
+    ### For columns ###
+    for (int x = 0; x < w; ++x)
+        for (int y = 0; y < h; ++y)
+            tmp[y] = mask[y*w+x] ? MAX_DOUBLE - 1 : 0;
+
+        Double d[] = DistanceTransform1D(tmp, h);
+
+        for (int y = 0; y < h; y++)
+            result[y*w+x] = d[y];
+
+    ### For rows ###
+    for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++)
+            tmp[x] = result[y*w+x];
+
+        Double d[] = DistanceTransform1D(tmp, w);
+
+        for (int x = 0; x < w; x++)
+            result[y*w+ x] = d[x];
+
+    return result
+\end{verbatim}
+
+\newpage
+\subsection{Class diagram.}
+
+%!
+%Generate me!
+
+\newpage
+\subsection{Sequence diagram.}
+
+ \begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.55]{sequence-dia.png}
+  \caption{Sequence diagram}
+  \end{figure}
 
   \renewcommand{\refname}{\section{References}}
   
