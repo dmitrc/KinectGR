@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using System.Drawing;
+using System.Timers;
 
 namespace ThesisProj
 {
@@ -17,24 +19,33 @@ namespace ThesisProj
     /// </summary>
     class GestureRecognizer
     {
-        //public double MATCH_THRESHOLD = 0.01;
+        public List<Gesture> Gestures = new List<Gesture>();
+        public List<DynamicGesture> DynamicGestures = new List<DynamicGesture>(); 
+        public String Hand;
 
-        public List<Gesture> Gestures;
+        private FrameBuffer _frameBuffer;
 
-        public GestureRecognizer()
+        public GestureRecognizer(String hand, FrameBuffer frameBuffer)
         {
-            Gestures = new List<Gesture>();
-        }
+            if (hand != "Left" && hand != "Right")
+            {
+                throw new Exception("Hand should have one of the following values: Left, Right.");
+            }
+            if (frameBuffer == null)
+            {
+                throw new Exception("Gesture recognizer needs a frame buffer to detect gestures!");
+            }
 
-        public GestureRecognizer(IEnumerable<Gesture> gestures)
-        {
-            Gestures = new List<Gesture>();
-            Gestures = gestures.ToList();
+            Hand = hand;
+            _frameBuffer = frameBuffer;
         }
 
         public void AddGesture(Gesture g)
         {
-            Gestures.Add(g);
+            if (g != null)
+            {
+                Gestures.Add(g); 
+            }
         }
 
         public void AddGestures(List<Gesture> g)
@@ -42,6 +53,22 @@ namespace ThesisProj
             if (g != null && g.Count > 0)
             {
                 Gestures.AddRange(g);
+            }
+        }
+
+        public void AddDynamicGesture(DynamicGesture g)
+        {
+            if (g != null)
+            {
+                DynamicGestures.Add(g);
+            }
+        }
+
+        public void AddDynamicGestures(List<DynamicGesture> g)
+        {
+            if (g != null && g.Count > 0)
+            {
+                DynamicGestures.AddRange(g);
             }
         }
 
@@ -77,13 +104,14 @@ namespace ThesisProj
                         CvInvoke.cvNormalizeHist(hist1.Ptr, 100.0);
                         CvInvoke.cvNormalizeHist(hist2.Ptr, 100.0);
 
+                        g.RecognizedData.Hand = Hand;
                         g.RecognizedData.HistogramMatch = CvInvoke.cvCompareHist(hist1, hist2, HISTOGRAM_COMP_METHOD.CV_COMP_BHATTACHARYYA);
                         g.RecognizedData.ContourMatch = CvInvoke.cvMatchShapes(c1, c2, CONTOURS_MATCH_TYPE.CV_CONTOURS_MATCH_I3, 0);
 
                         double rating = g.RecognizedData.ContourMatch * g.RecognizedData.HistogramMatch;
                         double bestSoFar = bestFit.RecognizedData.ContourMatch * bestFit.RecognizedData.HistogramMatch;
                    
-                        if (rating < bestSoFar) // && g.FingersCount == fingersCount)
+                        if (rating < bestSoFar && g.FingersCount == fingersCount)
                         {
                             bestFit = g;
                         }
@@ -91,9 +119,9 @@ namespace ThesisProj
                 }
             }
 
-            if (bestFit.RecognizedData.ContourMatch * bestFit.RecognizedData.HistogramMatch <= 0.01 //0.01
-                && bestFit.RecognizedData.ContourMatch <= 0.80 //0.80
-                && bestFit.RecognizedData.HistogramMatch <= 0.20) //0.20
+            if (bestFit.RecognizedData.ContourMatch * bestFit.RecognizedData.HistogramMatch <= 0.02 //0.01
+                && bestFit.RecognizedData.ContourMatch <= 1 //0.80
+                && bestFit.RecognizedData.HistogramMatch <= 0.35) //0.20
             {
                 return bestFit;
             }
@@ -101,6 +129,73 @@ namespace ThesisProj
             {
                 return null;
             }
+        }
+
+        public DynamicGesture RecognizeDynamicGesture()
+        {
+            DynamicFeatures features = _frameBuffer.GetDynamicFeatures(Hand);
+            if (features == null)
+            {
+                return null;
+            }
+
+            foreach (DynamicGesture gesture in DynamicGestures)
+            {
+                if (gesture.Type == DynamicGestureType.DynamicGestureWave)
+                {
+                    int gestureCount = features.RecognizedGestures.Count(s => s == gesture.Gestures[0].Name);
+                    int positiveYCount = features.HandElbowOffsets.Count(p => p.Y < 0);
+
+                    double maxX = -999;
+                    double minX = 999;
+
+
+                    foreach (PointF offset in features.HandElbowOffsets)
+                    {
+                        if (offset.X > maxX) maxX = offset.X;
+                        if (offset.X < minX) minX = offset.X;
+                    }
+
+                    double gestureCutoff = features.RecognizedGestures.Count*0.4;
+                    double positiveYCutoff = features.HandElbowOffsets.Count*0.9;
+                    double offsetCutoff = 0.12;
+
+                    if (gestureCount > gestureCutoff &&
+                        positiveYCount > positiveYCutoff &&
+                        maxX - minX > offsetCutoff)
+                    {
+                        gesture.RecognizedData.Hand = Hand;
+                        return gesture;
+                    }
+                }
+                else if (gesture.Type == DynamicGestureType.DynamicGestureAlternation)
+                {
+                    int countA = 0;
+                    int countB = 0;
+
+                    foreach (String s in features.RecognizedGestures)
+                    {
+                        if (s == gesture.Gestures[0].Name)
+                        {
+                            countA++;
+                        }
+                        else if (s == gesture.Gestures[1].Name)
+                        {
+                            countB++;
+                        }
+                    }
+
+                    double cutoff = features.RecognizedGestures.Count*0.3;
+
+                    if (countA > cutoff && countB > cutoff)
+                    {
+                        gesture.RecognizedData.Hand = Hand;
+                        return gesture;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

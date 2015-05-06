@@ -19,10 +19,19 @@ namespace ThesisProj
     //    public Rect Position;
     //}
 
+    public enum Direction
+    {
+        DirectionUnknown,
+        DirectionLeft,
+        DirectionRight,
+        DirectionUp,
+        DirectionDown
+    }
+
     public class Hand
     {
-        private const double OuterCircleMultiplier = 1.7;
-        private const int AreaCutoff = 15;
+        private const double OuterCircleMultiplier = 1.75;
+        private const int AreaCutoff = 10;
 
         private Point _handJoint;
         private Point _wristJoint;
@@ -40,6 +49,7 @@ namespace ThesisProj
         public Point PalmCenter;
         public int InnerCircleRadius;
         public int OuterCircleRadius;
+        public Direction Direction;
         public int FingersCount;
 
         public Hand(Rect position, Dictionary<String, Joint> joints, bool[] mask)
@@ -59,75 +69,19 @@ namespace ThesisProj
         public void Analyze()
         {
             MaskImage = Utility.ConvertMaskToImage(Mask, Utility.HandWidth, Utility.HandHeight);
+            DisplayImage = MaskImage.Copy().Convert<Bgr, byte>();
 
             PalmCenter = LocatePalmCenter();
             InnerCircleRadius = CalculateInnerRadius();
             OuterCircleRadius = (int)(InnerCircleRadius * OuterCircleMultiplier);
+            Direction = CalculateDirection();
             FingersCount = ExtractFingers();
+            Console.WriteLine("Fingers: " + FingersCount);
 
-            //using (var storage = new MemStorage())
-            //{
-            //    Contour<Point> contours = MaskImage.FindContours(
-            //        Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST,
-            //        storage);
-
-            //    Contour<Point> biggestContour = null;
-
-            //    double currentArea = 0;
-            //    double maxArea = 0;
-
-            //    while (contours != null)
-            //    {
-            //        currentArea = contours.Area;
-            //        if (currentArea > maxArea)
-            //        {
-            //            maxArea = currentArea;
-            //            biggestContour = contours;
-            //        }
-            //        contours = contours.HNext;
-            //    }
-
-            //    if (biggestContour != null)
-            //    {
-            //        int size = biggestContour.Total;
-            //        for (int i = 0; i < size; i += Utility.Step)
-            //        {
-            //            double cos0 = Utility.Angle(biggestContour, i);
-
-            //            if ((cos0 > Utility.CosThreshold) && (i + Utility.Step < size))
-            //            {
-            //                double cos1 = Utility.Angle(biggestContour, i - Utility.Step);
-            //                double cos2 = Utility.Angle(biggestContour, i + Utility.Step);
-            //                double maxCos = Math.Max(Math.Max(cos0, cos1), cos2);
-
-            //                bool equal = Utility.IsEq(maxCos, cos0);
-            //                double z = Utility.Rotation(biggestContour, i);
-
-            //                if (equal && z < 0)
-            //                {
-            //                    Finger f = new Finger();
-            //                    f.Tip = biggestContour[i];
-
-            //                    Fingers.Add(f);
-            //                }
-            //            }
-            //        }
-
-            //        DisplayImage.Draw(biggestContour, new Bgr(Color.Black), 1);
-            //        DisplayImage.Draw(new CircleF(PalmCenter, 5), new Bgr(Color.Red), 2);
-            //        DisplayImage.Draw(new CircleF(PalmCenter, InnerCircleRadius), new Bgr(Color.Orange), 5);
-
-            //        for (int i = 0; i < Fingers.Count; ++i)
-            //        {
-            //            DisplayImage.Draw(new CircleF(Fingers[i].Tip, 5), new Bgr(Color.Blue), 2);
-            //        }
-            //    }
-            //}
-
-            DisplayImage = MaskImage.Copy().Convert<Bgr, byte>();
             DisplayImage.Draw(new CircleF(PalmCenter, 5), new Bgr(Color.Red), 2);
             DisplayImage.Draw(new CircleF(PalmCenter, InnerCircleRadius), new Bgr(Color.Orange), 5);
             DisplayImage.Draw(new CircleF(PalmCenter, OuterCircleRadius), new Bgr(Color.Yellow), 3);
+            DisplayImage.Draw(new CircleF(_wristJoint, 5), new Bgr(Color.Red), 2);
         }
 
         private Point LocatePalmCenter()
@@ -180,7 +134,7 @@ namespace ThesisProj
 
             while (IsValidInnerRadius(r))
             {
-                r = r + 2;
+                r = r + 1;
             }
 
             return r;
@@ -257,7 +211,7 @@ namespace ThesisProj
             return result;
         }
 
-        private Double[] DistanceTransform2D()
+        private double[] DistanceTransform2D()
         {
             double[] result = new double[Utility.HandWidth * Utility.HandHeight];
             double[] tmp = new double[Math.Max(Utility.HandWidth, Utility.HandHeight)];
@@ -298,7 +252,13 @@ namespace ThesisProj
             return result;
         }
 
+#warning Implement this!
+        public Direction CalculateDirection()
+        {
+            return Direction.DirectionUnknown;
+        }
 
+#warning Needs to be fixed.
         public int ExtractFingers()
         {
             Array.Clear(_fingersMask, 0, _fingersMask.Length);
@@ -310,9 +270,6 @@ namespace ThesisProj
             double lx = PalmCenter.X - _handtipJoint.X;
             double ly = PalmCenter.Y - _handtipJoint.Y;
 
-
-            int c1 = 0;
-            int c2 = 0;
             for (int yi = 0; yi < Utility.HandHeight; ++yi)
             {
                 for (int xi = 0; xi < Utility.HandWidth; ++xi)
@@ -327,12 +284,13 @@ namespace ThesisProj
                         if (candidate != null)
                         {
                             Rect position = CalculateFingerPosition(candidate);
-                            //PointF fingertip = CalculateFingerTip(candidate, position);
+                            PointF fingertip = CalculateFingerTip(candidate, position);
                             Tuple<Point, Point, double> baseLine = CalculateFingerBase(candidate, position);
 
                             double baseWidth = baseLine.Item3;
 
-                            if (baseWidth <= 0)
+                            // Something is wrong...
+                            if (baseWidth <= 1)
                             {
                                 continue;
                             }
@@ -342,6 +300,14 @@ namespace ThesisProj
 
                             //double alpha = Math.Acos((lx * ox + ly * oy) / ((Math.Sqrt(lx * lx + ly * ly) * Math.Sqrt(ox * ox + oy * oy)))) * 180 / Math.PI;
                             //Console.WriteLine(alpha);
+
+                            // Ignore if wrist.
+                            if (Utility.Dist(_wristJoint, fingertip) < OuterCircleRadius/2.0)
+                            {
+                                continue;
+                            }
+
+                            DisplayImage.Draw(new CircleF(fingertip, 4), new Bgr(Color.Green), 4);
 
                             double refWidth = (double)InnerCircleRadius * 1.7;
 

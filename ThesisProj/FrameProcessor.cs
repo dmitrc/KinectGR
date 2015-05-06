@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Drawing;
+using System.Windows.Threading;
 using Microsoft.Kinect;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -36,6 +38,14 @@ namespace ThesisProj
         public delegate void RightGestureUpdatedHandler(Gesture gesture);
         public event RightGestureUpdatedHandler RightGestureUpdated;
 
+        // Define callback that returns state of left hand's dynamic gesture.
+        public delegate void LeftDynamicGestureUpdatedHandler(DynamicGesture gesture);
+        public event LeftDynamicGestureUpdatedHandler LeftDynamicGestureUpdated;
+
+        // Define callback that returns state of right hand's dynamic gesture.
+        public delegate void RightDynamicGestureUpdatedHandler(DynamicGesture gesture);
+        public event RightDynamicGestureUpdatedHandler RightDynamicGestureUpdated;
+
 
         private HandRecognizer _leftHandRecognizer = null;
         private HandRecognizer _rightHandRecognizer = null;
@@ -46,25 +56,49 @@ namespace ThesisProj
 
         public FrameProcessor()
         {
+            FrameBuffer = new FrameBuffer();
+
             _leftHandRecognizer = new HandRecognizer();
             _rightHandRecognizer = new HandRecognizer();
-            _leftGestureRecognizer = new GestureRecognizer();
-            _rightGestureRecognizer = new GestureRecognizer();
+            _leftGestureRecognizer = new GestureRecognizer("Left", FrameBuffer);
+            _rightGestureRecognizer = new GestureRecognizer("Right", FrameBuffer);
 
             List<Gesture> gestures = new List<Gesture>();
 
-            gestures.Add(new Gesture("Open hand", "C:/Gestures/open_hand.jpg", 5));
+            Gesture open = new Gesture("Open hand", "C:/Gestures/open_hand.jpg", 5);
+            gestures.Add(open);
+
+            Gesture pointer = new Gesture("Pointer", "C:/Gestures/pointer.jpg", 1);
+            gestures.Add(pointer);
+
+            Gesture fist = new Gesture("Fist", "C:/Gestures/fist.jpg", 0);
+            gestures.Add(fist);
+
             gestures.Add(new Gesture("Peace", "C:/Gestures/peace.jpg", 2));
             gestures.Add(new Gesture("Spock", "C:/Gestures/spock.jpg", 4));
             gestures.Add(new Gesture("Rock'n'roll!", "C:/Gestures/rocknroll.jpg", 5));
-            gestures.Add(new Gesture("Pointer", "C:/Gestures/pointer.jpg", 1));
-            gestures.Add(new Gesture("OK", "C:/Gestures/ok.jpg", 3));
             gestures.Add(new Gesture("Thumbs up!", "C:/Gestures/thumbs_up.jpg", 1));
 
             _leftGestureRecognizer.AddGestures(gestures);
             _rightGestureRecognizer.AddGestures(gestures);
 
-            FrameBuffer = new FrameBuffer();
+            List<DynamicGesture> dynamicGestures = new List<DynamicGesture>();
+
+            List<Gesture> openList = new List<Gesture>();
+            openList.Add(open);
+            dynamicGestures.Add(new DynamicGesture("Hello!", DynamicGestureType.DynamicGestureWave, openList));
+
+            List<Gesture> pointerList = new List<Gesture>();
+            pointerList.Add(pointer);
+            dynamicGestures.Add(new DynamicGesture("One finger wave", DynamicGestureType.DynamicGestureWave, pointerList));
+
+            List<Gesture> openFistList = new List<Gesture>();
+            openFistList.Add(open);
+            openFistList.Add(fist);
+            dynamicGestures.Add(new DynamicGesture("Flash for attention", DynamicGestureType.DynamicGestureAlternation, openFistList));
+
+            _leftGestureRecognizer.AddDynamicGestures(dynamicGestures);
+            _rightGestureRecognizer.AddDynamicGestures(dynamicGestures);
         }
 
         public void AddGesture(Gesture g)
@@ -73,6 +107,15 @@ namespace ThesisProj
             _rightGestureRecognizer.AddGesture(g);
         }
 
+        // !
+        public void ProcessFrameInBackground(MultiSourceFrame frame)
+        {
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += (sender, e) =>
+            {
+                ProcessFrame((MultiSourceFrame)e.Argument);
+            };
+        }
 
         public void ProcessFrame(MultiSourceFrame frame)
         {
@@ -84,8 +127,8 @@ namespace ThesisProj
                 if (depthFrame != null)
                 {
                     depthFrame.CopyFrameDataToArray(frameData.DepthData);
-                    //Utility.MinReliableDepth = depthFrame.DepthMinReliableDistance;
-                    //Utility.MaxReliableDepth = depthFrame.DepthMaxReliableDistance;
+                    Utility.MinReliableDepth = depthFrame.DepthMinReliableDistance;
+                    Utility.MaxReliableDepth = depthFrame.DepthMaxReliableDistance;
 
                     if (DepthReady != null)
                     {
@@ -152,32 +195,17 @@ namespace ThesisProj
             frameData.LeftHand = _leftHandRecognizer.IdentifyHand(frameData.DepthData, leftJoints);
             if (LeftImageReady != null)
             {
-                if (frameData.LeftHand != null)
-                {
-                    LeftImageReady(frameData.LeftHand);
-                }
-                else
-                {
-                    LeftImageReady(null);
-                }
+                LeftImageReady(frameData.LeftHand);
             }
 
             // Identify right hand
             frameData.RightHand = _rightHandRecognizer.IdentifyHand(frameData.DepthData, rightJoints);
             if (RightImageReady != null)
             {
-                if (frameData.RightHand != null)
-                {
-                    RightImageReady(frameData.RightHand);
-                }
-                else
-                {
-                    RightImageReady(null);
-                }
+                RightImageReady(frameData.RightHand);
             }
 
             // Scan left hand for gestures
-            Gesture leftGesture = null;
             if (frameData.LeftHand != null)
             {
                 frameData.LeftGesture = _leftGestureRecognizer.RecognizeGesture(frameData.LeftHand.MaskImage, frameData.LeftHand.FingersCount);
@@ -189,7 +217,6 @@ namespace ThesisProj
             }
 
             // Scan right hand for gestures
-            Gesture rightGesture = null;
             if (frameData.RightHand != null)
             {
                 frameData.RightGesture = _rightGestureRecognizer.RecognizeGesture(frameData.RightHand.MaskImage, frameData.RightHand.FingersCount);
@@ -201,6 +228,18 @@ namespace ThesisProj
             }
 
             FrameBuffer.PushFrame(frameData);
+
+            DynamicGesture leftDynamicGesture = _leftGestureRecognizer.RecognizeDynamicGesture();
+            if (LeftDynamicGestureUpdated != null)
+            {
+                LeftDynamicGestureUpdated(leftDynamicGesture);
+            }
+
+            DynamicGesture rightDynamicGesture = _rightGestureRecognizer.RecognizeDynamicGesture();
+            if (RightDynamicGestureUpdated != null)
+            {
+                RightDynamicGestureUpdated(rightDynamicGesture);
+            }
         }
     }
 }

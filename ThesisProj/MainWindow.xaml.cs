@@ -42,6 +42,8 @@ namespace ThesisProj
             _frameProcessor.RightImageReady += FrameProcessor_RightImageReady;
             _frameProcessor.LeftGestureUpdated += FrameProcessor_LeftGestureUpdated;
             _frameProcessor.RightGestureUpdated += FrameProcessor_RightGestureUpdated;
+            _frameProcessor.LeftDynamicGestureUpdated += FrameProcessor_LeftDynamicGestureUpdated;
+            _frameProcessor.RightDynamicGestureUpdated += FrameProcessor_RightDynamicGestureUpdated;
 
             _kinect = KinectSensor.GetDefault();
             _kinect.IsAvailableChanged += Kinect_IsAvailableChanged;
@@ -145,11 +147,11 @@ namespace ThesisProj
                 String str = "Gesture detected:\n\n";
 
                 str += leftGesture.Name;
-                str += "\nM : " + leftGesture.RecognizedData.ContourMatch.ToString("G5");
-                str += "\nC : " + leftGesture.RecognizedData.HistogramMatch.ToString("G5");
+                //str += "\nM : " + leftGesture.RecognizedData.ContourMatch.ToString("G5");
+                //str += "\nC : " + leftGesture.RecognizedData.HistogramMatch.ToString("G5");
                 str += "\nMxC: " + (leftGesture.RecognizedData.ContourMatch*leftGesture.RecognizedData.HistogramMatch).ToString("G5");
-                str += "\n# of fingers: " + leftGesture.FingersCount;
-                str += "\nDirection: " + "<...>";
+                //str += "\n# of fingers: " + leftGesture.FingersCount;
+                //str += "\nDirection: " + "<...>";
   
                 LeftResult.Text = str;
             }
@@ -167,20 +169,60 @@ namespace ThesisProj
         {
             if (rightGesture != null)
             {
-                String str = "Gesture(s) detected:\n\n";
+                String str = "Gesture detected:\n\n";
 
                 str += rightGesture.Name;
-                str += "\nM : " + rightGesture.RecognizedData.ContourMatch.ToString("G5");
-                str += "\nC : " + rightGesture.RecognizedData.HistogramMatch.ToString("G5");
+                //str += "\nM : " + rightGesture.RecognizedData.ContourMatch.ToString("G5");
+                //str += "\nC : " + rightGesture.RecognizedData.HistogramMatch.ToString("G5");
                 str += "\nMxC: " + (rightGesture.RecognizedData.ContourMatch * rightGesture.RecognizedData.HistogramMatch).ToString("G5");
-                str += "\n# of fingers: " + rightGesture.FingersCount;
-                str += "\nDirection: " + "<...>";
+                //str += "\n# of fingers: " + rightGesture.FingersCount;
+                //str += "\nDirection: " + "<...>";
 
                 RightResult.Text = str;
             }
             else
             {
                 RightResult.Text = "No gestures detected!";
+            }
+        }
+
+        /// <summary>
+        /// Notifies the user and executes defined actions for recognized dynamic gestures.
+        /// </summary>
+        /// <param name="leftGesture">Gesture (or null if none)</param>
+        private void FrameProcessor_LeftDynamicGestureUpdated(DynamicGesture leftGesture)
+        {
+            if (leftGesture != null)
+            {
+                String str = "Dynamic gesture:\n\n";
+
+                str += leftGesture.Name;
+
+                LeftDynamicResult.Text = str;
+            }
+            else
+            {
+                LeftDynamicResult.Text = "";
+            }
+        }
+
+        /// <summary>
+        /// Notifies the user and executes defined actions for recognized dynamic gestures.
+        /// </summary>
+        /// <param name="rightGesture">Gesture (or null if none)</param>
+        private void FrameProcessor_RightDynamicGestureUpdated(DynamicGesture rightGesture)
+        {
+            if (rightGesture != null)
+            {
+                String str = "Dynamic gesture:\n\n";
+
+                str += rightGesture.Name;
+
+                RightDynamicResult.Text = str;
+            }
+            else
+            {
+                RightDynamicResult.Text = "";
             }
         }
 

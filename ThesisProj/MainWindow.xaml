@@ -7,7 +7,7 @@
             <BitmapImage x:Key="KinectNotAvailable" UriSource="not-available.JPG"/>
         </ResourceDictionary>
     </Window.Resources>
-    
+
     <Grid Margin="0,0,0,0">
         <Image Name="DepthImage" Width="512" Height="424"  Margin="22,10,484.667,38" Source ="{StaticResource KinectNotAvailable}"/>
         <Canvas Name="DepthCanvas" Width="512" Height="424" Margin="22,10,484.667,38" />
@@ -16,9 +16,11 @@
         <Label Content="Right hand" HorizontalAlignment="Left" Margin="839,14,0,0" VerticalAlignment="Top" Width="100" Height="31" FontSize="13" FontFamily="Segoe WP Light"/>
         <Label Content="Left hand" HorizontalAlignment="Left" Margin="649,14,0,0" VerticalAlignment="Top" Width="100" Height="31" FontSize="13" FontFamily="Segoe WP Light"/>
         <Label Content="Depth frame" HorizontalAlignment="Left" Margin="21,437,0,0" VerticalAlignment="Top" Width="513" Height="28" FontSize="13" FontFamily="Segoe WP Light"/>
-        <TextBlock Name="LeftResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="649,228,0,0" VerticalAlignment="Top" Width="150" Height="234" FontSize="13"/>
-        <TextBlock Name="RightResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="839,228,0,0" VerticalAlignment="Top" Width="150" Height="234" FontSize="13"/>
         <Button Content="Save" HorizontalAlignment="Left" Margin="839,183,0,0" VerticalAlignment="Top" Width="120" Click="SaveRightGesture" FontFamily="Segoe WP Light"/>
         <Button Content="Save" HorizontalAlignment="Left" Margin="649,183,0,0" VerticalAlignment="Top" Width="120" Click="SaveLeftGesture" FontFamily="Segoe WP Light"/>
+        <TextBlock Name="LeftResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="649,228,0,0" VerticalAlignment="Top" Width="150" Height="139" FontSize="13" FontFamily="Segoe WP"/>
+        <TextBlock Name="RightResult" TextWrapping="Wrap" Text="No gestures detected!" HorizontalAlignment="Left" Margin="839,228,0,0" VerticalAlignment="Top" Width="150" Height="139" FontSize="13" FontFamily="Segoe WP"/>
+        <TextBlock x:Name="LeftDynamicResult" TextWrapping="Wrap" Text="" HorizontalAlignment="Left" Margin="649,372,0,0" VerticalAlignment="Top" Width="150" Height="90" FontSize="13" FontFamily="Segoe WP Semibold"/>
+        <TextBlock x:Name="RightDynamicResult" TextWrapping="Wrap" Text="" HorizontalAlignment="Left" Margin="839,372,0,0" VerticalAlignment="Top" Width="150" Height="90" FontSize="13" FontFamily="Segoe WP Semibold"/>
     </Grid>
 </Window>

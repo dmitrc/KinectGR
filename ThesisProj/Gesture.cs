@@ -10,23 +10,21 @@ using Emgu.CV.Structure;
 
 namespace ThesisProj
 {
-    class GestureRecognizedData
+    public class GestureRecognizedData
     {
         public double ContourMatch;
         public double HistogramMatch;
+        public String Hand;
     }
 
-    class Gesture
+    public class Gesture
     {
         public String Name;
         public Image<Gray, byte> Image;
         public int FingersCount;
         public GestureRecognizedData RecognizedData = new GestureRecognizedData();
 
-        public Gesture()
-        {
-            
-        }
+        public Gesture() {}
 
         public Gesture(String name, Image<Gray, byte> img, int fingersCount)
         {
@@ -46,5 +44,45 @@ namespace ThesisProj
         {
             Image.ToBitmap().Save(filename);
         }
-    } 
+    }
+
+    public enum DynamicGestureType
+    {
+        DynamicGestureWave,
+        DynamicGestureAlternation
+    }
+
+    public class DynamicGestureRecognizedData
+    {
+        public String Hand;
+    }
+
+    public class DynamicGesture
+    {
+        public String Name;
+        public DynamicGestureType Type;
+        public DynamicGestureRecognizedData RecognizedData = new DynamicGestureRecognizedData();
+
+        public List<Gesture> Gestures;
+
+        public DynamicGesture() {}
+
+        public DynamicGesture(String name, DynamicGestureType type, List<Gesture> gestures)
+        {
+            Name = name;
+            Type = type;
+
+            if (type == DynamicGestureType.DynamicGestureWave && gestures.Count != 1)
+            {
+                throw new Exception("Wave gesture takes only one static gesture as an argument.");
+            }
+
+            if (type == DynamicGestureType.DynamicGestureAlternation && gestures.Count != 2)
+            {
+                throw new Exception("Alternation gesture takes exactly two static gestures as an argument.");
+            }
+
+            Gestures = gestures;
+        }
+    }
 }
