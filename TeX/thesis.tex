@@ -239,6 +239,8 @@ As a result of choosing our depth camera and the SDK, the following system requi
 
 \subsection{Project structure.}
 
+For more advanced overview of the classes, that I have impemented, including definitions of fields and methods, please refer to the class diagram in Appendix, section 10.3.\\
+
 \begin{itemize}
 \item \textbf{MainWindow}\\
 Includes rendering of the main application window, initializing Kinect sensor and displaying the results of the recognition.
@@ -362,7 +364,7 @@ Here, $h_i^A$ and $h_i^B$ represent Hu moments of an image. Since the specific p
 
 It's important to note, however, that since we're detecting gestures in 2D space of a depth frame, rather than 3D space, some gestures may stop being recognized if the overall contour changes too much due to different perspective of a hand for the camera.  If the environment assumptions are fulfilled and hand is fully extended in front of the body, these problems will not arise.
 
-After analyzing the output of the algorithm, a cutoff threshold for similarity was chosen to be 0.80.\\
+After analyzing the output of the algorithm (smaller values are better), a cutoff threshold for similarity was chosen to be 0.80.\\
 
 \item \textbf{Histogram match.}\\
 Since contour of the hand can be quite similar for different gestures, it's not enough to reliably determine whether a particular gesture has been shown. To solve this problem we will need to find another comparison metric, that would add confidence to our recognized gesture.
@@ -372,7 +374,7 @@ One of such metrics can be derived by calculating and comparing the 2D pair-wise
 The results are then normalized, to prevent the errors in the situation when two images are not of the same size. Finally two resulting PGHs are compared using Bhattacharyya distance, that is commonly used to measure similarity between two probability distributions:
 \[ d(H_1, H_2) = \sqrt{1- \frac{1}{ \sqrt{H_1^{-} H_2^{-} N^2}}  \sum\limits_{I} \sqrt{H_1(I) H_2(I)}} \] 
 
-After analyzing the output of the algorithm, a cutoff threshold for similarity was chosen to be 0.20.\\
+After analyzing the output of the algorithm (smaller values are better), a cutoff threshold for similarity was chosen to be 0.20.\\
 
 \end{itemize}
 
@@ -445,15 +447,17 @@ Either of the following two methods can be used to try the final application for
 \item Depth frame from Kinect data. If Kinect is not connected an error is displayed here.
 \item Box representing position of the detected hand.
 \item Mask image of a hand with important points marked.
+\item Counter indicates number of detected fingers.
 \item Static gestures that were recognized. Similarity product and direction are displayed for recognized gestures.
-\item Dynamic gestures that were recognized.
-\item Save the current hand mask to an image file (can be used for gesture sets).
+\item Dynamic gestures that were recognized \textit{(none in the displayed frame)}.
+\item Save the current hand mask to an image file (used for changing gesture sets).
 \end{enumerate}
 
 \subsection{Features.}
 
 %!
 %Write this
+%Refer to sequence diagram
  
  \section{Evaluation.}
   
@@ -620,8 +624,11 @@ DistanceTransform2D (mask) : Double[]
 \newpage
 \subsection{Class diagram.}
 
-%!
-%Generate me!
+ \begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.38]{class-diagram.png}
+  \caption{Class diagram}
+  \end{figure}
 
 \newpage
 \subsection{Sequence diagram.}
