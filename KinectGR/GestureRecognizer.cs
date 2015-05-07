@@ -87,6 +87,10 @@ namespace KinectGR
 
             foreach (var g in recognizedGestures)
             {
+                if (g.FingersCount != fingersCount) {
+                    continue;
+                }
+
                 using (MemStorage storage = new MemStorage())
                 {
                     Contour<Point> c1 = contour.FindContours(CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
@@ -111,7 +115,7 @@ namespace KinectGR
                         double rating = g.RecognizedData.ContourMatch * g.RecognizedData.HistogramMatch;
                         double bestSoFar = bestFit.RecognizedData.ContourMatch * bestFit.RecognizedData.HistogramMatch;
                    
-                        if (rating < bestSoFar && g.FingersCount == fingersCount)
+                        if (rating < bestSoFar)
                         {
                             bestFit = g;
                         }
@@ -142,6 +146,7 @@ namespace KinectGR
 
             foreach (DynamicGesture gesture in DynamicGestures)
             {
+                // Wave gesture recognition
                 if (gesture.Type == DynamicGestureType.DynamicGestureWave)
                 {
                     int gestureCount = features.RecognizedGestures.Count(s => s == gesture.Gestures[0].Name);
@@ -169,6 +174,8 @@ namespace KinectGR
                         return gesture;
                     }
                 }
+
+                // Alternation gesture recognition
                 else if (gesture.Type == DynamicGestureType.DynamicGestureAlternation)
                 {
                     int countA = 0;
