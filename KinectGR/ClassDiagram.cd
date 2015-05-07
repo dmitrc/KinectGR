@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="KinectGR.App">
+    <Position X="0.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.FrameData">
+    <Position X="4.75" Y="0.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAQAAAAAAAAACAAAAAAAAAIQAAAAAQQAA=</HashCode>
+      <FileName>FrameBuffer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.DynamicFeatures">
+    <Position X="11.25" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>FrameBuffer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.FrameBuffer" BaseTypeListCollapsed="true">
+    <Position X="5.5" Y="3.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAIAAAAEAACAAAAAAIAAAAAYAAAAAAgAAA=</HashCode>
+      <FileName>FrameBuffer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Orientation="Left" Position="0.1" Collapsed="true" />
+  </Class>
+  <Class Name="KinectGR.FrameProcessor">
+    <Position X="0.5" Y="5" Width="4.75" />
+    <NestedTypes>
+      <Delegate Name="KinectGR.FrameProcessor.DepthReadyHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="KinectGR.FrameProcessor.LeftHandReadyHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="KinectGR.FrameProcessor.RightHandReadyHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="KinectGR.FrameProcessor.LeftGestureUpdatedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="KinectGR.FrameProcessor.RightGestureUpdatedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="KinectGR.FrameProcessor.LeftDynamicGestureUpdatedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="KinectGR.FrameProcessor.RightDynamicGestureUpdatedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FrameProcessor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAgBAAAgAAAQEAAAAAAAFAAAQAEAAICAAABAAACAIA=</HashCode>
+      <FileName>FrameProcessor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.GestureRecognizedData">
+    <Position X="14" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAACAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>Gesture.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.Gesture" BaseTypeListCollapsed="true">
+    <Position X="13.25" Y="2.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACAAAAAAAAAAAAQAAAAAABAEgAAAAAAAAAA=</HashCode>
+      <FileName>Gesture.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KinectGR.DynamicGestureRecognizedData">
+    <Position X="16.5" Y="1.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gesture.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.DynamicGesture">
+    <Position X="16.5" Y="2.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACAAQAAAAAAAAAgQAAAAAAAAA=</HashCode>
+      <FileName>Gesture.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.GestureRecognizer">
+    <Position X="18.75" Y="5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACEAAAAIAAAiAAACBAAAAAACAAACEAAAAAA=</HashCode>
+      <FileName>GestureRecognizer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.Finger">
+    <Position X="12.75" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAACAAAEAAAAAAAAAAAAAAAAAAQAA=</HashCode>
+      <FileName>Hand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.Hand">
+    <Position X="8.75" Y="2.25" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>IgEACAAAAgIAQAIgAKQgAIBAEAAAhAAAABCAIAUAABQ=</HashCode>
+      <FileName>Hand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.HandRecognizer">
+    <Position X="5.75" Y="7" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAIAAAAAAACAQAAAAAQAAEAgACAAAAA=</HashCode>
+      <FileName>HandRecognizer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.MainWindow">
+    <Position X="0.5" Y="2" Width="3.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAEAAAAEAoAAQGEABSAAAQCAAAAAAgAAAQIAAEAAACA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.Rect">
+    <Position X="12.5" Y="5.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAAAAAAAAAEAAAAAAAAAgAAAAAAAAYAA=</HashCode>
+      <FileName>Utility.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinectGR.Utility">
+    <Position X="14.75" Y="5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>IAEAADAIIQAAAoAAIAIgAABICCAIAAAAIEgAIAAEgwA=</HashCode>
+      <FileName>Utility.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="KinectGR.DynamicGestureType">
+    <Position X="19.25" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gesture.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KinectGR.Direction">
+    <Position X="10.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQBAAAEAAAAAAAAAAAAAAAAAAAAACAAAAABAAAA=</HashCode>
+      <FileName>Hand.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
