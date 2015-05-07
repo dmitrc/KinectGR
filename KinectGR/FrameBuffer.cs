@@ -12,7 +12,7 @@ using Microsoft.Kinect;
 using Point = System.Drawing.Point;
 using PointF = System.Drawing.PointF;
 
-namespace ThesisProj
+namespace KinectGR
 {
     class FrameData
     {

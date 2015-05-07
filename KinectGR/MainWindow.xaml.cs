@@ -13,7 +13,7 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Color = System.Drawing.Color;
 
-namespace ThesisProj
+namespace KinectGR
 {
     /// <summary>
     /// Class responsible for rendering of the main window of application.
@@ -38,8 +38,8 @@ namespace ThesisProj
 
             _frameProcessor = new FrameProcessor();
             _frameProcessor.DepthReady += FrameProcessor_DepthReady;
-            _frameProcessor.LeftImageReady += FrameProcessor_LeftImageReady;
-            _frameProcessor.RightImageReady += FrameProcessor_RightImageReady;
+            _frameProcessor.LeftHandReady += FrameProcessor_LeftHandReady;
+            _frameProcessor.RightHandReady += FrameProcessor_RightHandReady;
             _frameProcessor.LeftGestureUpdated += FrameProcessor_LeftGestureUpdated;
             _frameProcessor.RightGestureUpdated += FrameProcessor_RightGestureUpdated;
             _frameProcessor.LeftDynamicGestureUpdated += FrameProcessor_LeftDynamicGestureUpdated;
@@ -69,7 +69,7 @@ namespace ThesisProj
         /// Updates the UI from the new left hand image.
         /// </summary>
         /// <param name="hand">Left hand</param>
-        private void FrameProcessor_LeftImageReady(Hand hand)
+        private void FrameProcessor_LeftHandReady(Hand hand)
         {
             if (_leftRect != null)
             {
@@ -79,10 +79,12 @@ namespace ThesisProj
             if (hand == null)
             {
                 LeftImage.Source = _emptyImage;
+                LeftFingerCount.Content = "";
                 return;
             }
 
             LeftImage.Source = Utility.ConvertImageToBitmapSource(hand.DisplayImage);
+            LeftFingerCount.Content = hand.Fingers.Count;
 
             if (hand.Position != null)
             {
@@ -104,7 +106,7 @@ namespace ThesisProj
         /// Updates the UI from the new right hand image.
         /// </summary>
         /// <param name="hand">Right hand</param>
-        private void FrameProcessor_RightImageReady(Hand hand)
+        private void FrameProcessor_RightHandReady(Hand hand)
         {
             if (_rightRect != null)
             {
@@ -115,10 +117,12 @@ namespace ThesisProj
             if (hand == null)
             {
                 RightImage.Source = _emptyImage;
+                RightFingerCount.Content = "";
                 return;
             }
 
             RightImage.Source = Utility.ConvertImageToBitmapSource(hand.DisplayImage);
+            RightFingerCount.Content = hand.Fingers.Count;
 
             if (hand.Position != null)
             {
@@ -150,8 +154,7 @@ namespace ThesisProj
                 //str += "\nM : " + leftGesture.RecognizedData.ContourMatch.ToString("G5");
                 //str += "\nC : " + leftGesture.RecognizedData.HistogramMatch.ToString("G5");
                 str += "\nMxC: " + (leftGesture.RecognizedData.ContourMatch*leftGesture.RecognizedData.HistogramMatch).ToString("G5");
-                str += "\n# of fingers: " + leftGesture.FingersCount;
-                str += "\nDirection: " + Utility.DirectionToString(direction);
+                if (direction != Direction.DirectionUnknown) str += "\nDirection: " + Utility.DirectionToString(direction);
   
                 LeftResult.Text = str;
             }
@@ -175,8 +178,7 @@ namespace ThesisProj
                 //str += "\nM : " + rightGesture.RecognizedData.ContourMatch.ToString("G5");
                 //str += "\nC : " + rightGesture.RecognizedData.HistogramMatch.ToString("G5");
                 str += "\nMxC: " + (rightGesture.RecognizedData.ContourMatch * rightGesture.RecognizedData.HistogramMatch).ToString("G5");
-                str += "\n# of fingers: " + rightGesture.FingersCount;
-                str += "\nDirection: " +  Utility.DirectionToString(direction);
+                if (direction != Direction.DirectionUnknown) str += "\nDirection: " + Utility.DirectionToString(direction);
 
                 RightResult.Text = str;
             }

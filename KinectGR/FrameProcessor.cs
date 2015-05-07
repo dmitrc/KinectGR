@@ -11,7 +11,7 @@ using Microsoft.Kinect;
 using Emgu.CV;
 using Emgu.CV.Structure;
 
-namespace ThesisProj
+namespace KinectGR
 {
     /// <summary>
     /// Class that processes Kinect's frames and returns relevant results.
@@ -23,12 +23,12 @@ namespace ThesisProj
         public event DepthReadyHandler DepthReady;
 
         // Define callback that returns rendered left hand image.
-        public delegate void LeftImageReadyHandler(Hand hand);
-        public event LeftImageReadyHandler LeftImageReady;
+        public delegate void LeftHandReadyHandler(Hand hand);
+        public event LeftHandReadyHandler LeftHandReady;
 
         // Define callback that returns rendered right hand image.
-        public delegate void RightImageReadyHandler(Hand hand);
-        public event RightImageReadyHandler RightImageReady;
+        public delegate void RightHandReadyHandler(Hand hand);
+        public event RightHandReadyHandler RightHandReady;
 
         // Define callback that returns state of left hand's gesture.
         public delegate void LeftGestureUpdatedHandler(Gesture gesture, Direction direction);
@@ -76,7 +76,8 @@ namespace ThesisProj
 
             gestures.Add(new Gesture("Peace", "C:/Gestures/peace.jpg", 2));
             gestures.Add(new Gesture("Spock", "C:/Gestures/spock.jpg", 4));
-            gestures.Add(new Gesture("Rock'n'roll!", "C:/Gestures/rocknroll.jpg", 5));
+            gestures.Add(new Gesture("Call me maybe?", "C:/Gestures/call.jpg", 2));
+            gestures.Add(new Gesture("Number Three", "C:/Gestures/three.jpg", 3));
             gestures.Add(new Gesture("Thumbs up!", "C:/Gestures/thumbs_up.jpg", 1));
 
             _leftGestureRecognizer.AddGestures(gestures);
@@ -193,16 +194,16 @@ namespace ThesisProj
 
             // Identify left hand
             frameData.LeftHand = _leftHandRecognizer.IdentifyHand(frameData.DepthData, leftJoints);
-            if (LeftImageReady != null)
+            if (LeftHandReady != null)
             {
-                LeftImageReady(frameData.LeftHand);
+                LeftHandReady(frameData.LeftHand);
             }
 
             // Identify right hand
             frameData.RightHand = _rightHandRecognizer.IdentifyHand(frameData.DepthData, rightJoints);
-            if (RightImageReady != null)
+            if (RightHandReady != null)
             {
-                RightImageReady(frameData.RightHand);
+                RightHandReady(frameData.RightHand);
             }
 
             // Scan left hand for gestures

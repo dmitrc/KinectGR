@@ -13,7 +13,7 @@ using Point = System.Drawing.Point;
 using PointF = System.Drawing.PointF;
 using Size = System.Drawing.Size;
 
-namespace ThesisProj
+namespace KinectGR
 {
     public class Rect
     {

@@ -9,10 +9,12 @@ using Emgu.CV.Structure;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
+using Emgu.CV.CvEnum;
 using Point = System.Drawing.Point;
 using PointF = System.Drawing.PointF;
+using Size = System.Drawing.Size;
 
-namespace ThesisProj
+namespace KinectGR
 {
     //public class Finger
     //{
@@ -38,7 +40,7 @@ namespace ThesisProj
 
     public class Hand
     {
-        private const double OuterCircleMultiplier = 1.75;
+        private const double OuterCircleMultiplier = 1.60;
 
         private Point _handJoint;
         private Point _wristJoint;
@@ -79,7 +81,7 @@ namespace ThesisProj
             DisplayImage = MaskImage.Copy().Convert<Bgr, byte>();
 
             PalmCenter = LocatePalmCenter();
-            InnerCircleRadius = CalculateInnerRadius();
+            InnerCircleRadius = (int)(1.05 * CalculateInnerRadius());
             OuterCircleRadius = (int)(InnerCircleRadius * OuterCircleMultiplier);
             Fingers = ExtractFingers();
             Direction = CalculateDirection();
@@ -88,13 +90,13 @@ namespace ThesisProj
             DisplayImage.Draw(new CircleF(PalmCenter, 5), new Bgr(Color.Red), -3);
 
             // Draw inner circle
-            DisplayImage.Draw(new CircleF(PalmCenter, InnerCircleRadius), new Bgr(Color.Orange), 5);
+            DisplayImage.Draw(new CircleF(PalmCenter, InnerCircleRadius), new Bgr(Color.Orange), 2);
 
             // Draw outer circle
-            //DisplayImage.Draw(new CircleF(PalmCenter, OuterCircleRadius), new Bgr(Color.Yellow), 3);
+            DisplayImage.Draw(new CircleF(PalmCenter, OuterCircleRadius), new Bgr(Color.Yellow), 2);
 
             // Draw Kinect wrist joint
-            //DisplayImage.Draw(new CircleF(_wristJoint, 5), new Bgr(Color.Red), -3);
+            DisplayImage.Draw(new CircleF(_wristJoint, 5), new Bgr(Color.HotPink), -3);
 
             foreach (Finger f in Fingers)
             {
@@ -108,17 +110,19 @@ namespace ThesisProj
 
         private Point LocatePalmCenter()
         {
-            double[] dt = DistanceTransform2D();
+            Image<Gray, float> dtImage = new Image<Gray, float>(Utility.HandWidth, Utility.HandHeight);
+            CvInvoke.cvDistTransform(MaskImage, dtImage, DIST_TYPE.CV_DIST_L2, 5, null, IntPtr.Zero);
+
             double max = Double.NegativeInfinity;
 
-            // Find maximum Euclidean distance
+            // Find maximum distance
             for (int y = 0; y < Utility.HandHeight; ++y)
             {
                 for (int x = 0; x < Utility.HandWidth; ++x)
                 {
-                    if (dt[y * Utility.HandWidth + x] > max)
+                    if (dtImage.Data[y,x,0] > max)
                     {
-                        max = dt[y * Utility.HandWidth + x];
+                        max = dtImage.Data[y,x,0];
                     }
                 }
             }
@@ -129,7 +133,7 @@ namespace ThesisProj
             {
                 for (int x = 0; x < Utility.HandWidth; ++x)
                 {
-                    if (Math.Abs(dt[y * Utility.HandWidth + x] - max) < 0.1)
+                    if (Utility.IsEq(dtImage.Data[y,x,0], max))
                     {
                         candidates.Add(new Point(x, y));
                     }
@@ -176,12 +180,18 @@ namespace ThesisProj
             const double INTERVAL = (360.0 / SAMPLE_COUNT) * (Math.PI / 200);
 
             double alpha = 0;
+            int blackCount = 0;
             for (int i = 0; i < SAMPLE_COUNT; i++)
             {
                 int x = (int)Math.Floor(PalmCenter.X + r * Math.Cos(alpha));
                 int y = (int)Math.Floor(PalmCenter.Y + r * Math.Sin(alpha));
 
                 if (Mask[y * Utility.HandWidth + x] == false)
+                {
+                    ++blackCount;
+                }
+
+                if (blackCount > SAMPLE_COUNT/30)
                 {
                     return false;
                 }
@@ -190,88 +200,6 @@ namespace ThesisProj
             }
 
             return true;
-        }
-
-        private double[] DistanceTransform1D(double[] arr, int n)
-        {
-            int[] v = new int[n];
-            double[] z = new double[n + 1];
-            int k = 0;
-
-            v[0] = 0;
-            z[0] = Double.NegativeInfinity;
-            z[1] = Double.PositiveInfinity;
-
-            double s;
-            for (int i = 1; i < n; i++)
-            {
-                s = ((arr[i] + i * i) - (arr[v[k]] + v[k] * v[k])) / (2.0 * i - 2.0 * v[k]);
-
-                while (s <= z[k])
-                {
-                    --k;
-                    s = ((arr[i] + i * i) - (arr[v[k]] + v[k] * v[k])) / (2.0 * i - 2.0 * v[k]);
-                }
-
-                ++k;
-                v[k] = i;
-                z[k] = s;
-                z[k + 1] = Double.PositiveInfinity;
-            }
-
-            k = 0;
-            double[] result = new double[n];
-
-            for (int i = 0; i < n; i++)
-            {
-                while (z[k + 1] < i) ++k;
-                result[i] = ((i - v[k]) * (i - v[k]) + arr[v[k]]);
-            }
-
-            v = null;
-            z = null;
-            return result;
-        }
-
-        private double[] DistanceTransform2D()
-        {
-            double[] result = new double[Utility.HandWidth * Utility.HandHeight];
-            double[] tmp = new double[Math.Max(Utility.HandWidth, Utility.HandHeight)];
-
-            // For columns
-            for (int x = 0; x < Utility.HandWidth; ++x)
-            {
-                for (int y = 0; y < Utility.HandHeight; ++y)
-                {
-                    tmp[y] = Mask[y * Utility.HandWidth + x] ? Double.MaxValue - 1 : 0;
-                }
-
-                double[] d = DistanceTransform1D(tmp, Utility.HandHeight);
-
-                for (int y = 0; y < Utility.HandHeight; y++)
-                {
-                    result[y * Utility.HandWidth + x] = d[y];
-                }
-            }
-
-            // For rows
-            for (int y = 0; y < Utility.HandHeight; y++)
-            {
-                for (int x = 0; x < Utility.HandWidth; x++)
-                {
-                    tmp[x] = result[y * Utility.HandWidth + x];
-                }
-
-                double[] d = DistanceTransform1D(tmp, Utility.HandWidth);
-
-                for (int x = 0; x < Utility.HandWidth; x++)
-                {
-                    result[y * Utility.HandWidth + x] = d[x];
-                }
-            }
-
-            tmp = null;
-            return result;
         }
 
         public Direction CalculateDirection()
@@ -332,7 +260,7 @@ namespace ThesisProj
             List<Finger> fingers = new List<Finger>();
             int fingerCount = 0;
 
-            int r = (int)Math.Floor(InnerCircleRadius * OuterCircleMultiplier);
+            int r = OuterCircleRadius;
             byte i = 0;
 
             for (int yi = 0; yi < Utility.HandHeight; ++yi)
@@ -361,19 +289,19 @@ namespace ThesisProj
                             }
 
                             // Ignore if wrist.
-                            if (Utility.Dist(_wristJoint, fingertip) < OuterCircleRadius / 2.0)
+                            if (Utility.Dist(_wristJoint, fingertip) < OuterCircleRadius)
                             {
+                                DisplayImage.Draw(new CircleF(fingertip, 5), new Bgr(Color.Purple), -3);
                                 continue;
                             }
 
-                            double refWidth = (double)InnerCircleRadius * 1.7;
-
+                            double refWidth = (double)InnerCircleRadius * 0.9 * 2;
                             double ratio = baseWidth * 4 / refWidth;
 
                             int count = 1;
-                            if (ratio >= 1.4 && ratio < 2.4) count = 2;
-                            else if (ratio >= 2.4 && ratio < 3.4) count = 3;
-                            else if (ratio >= 3.4 && ratio < 5.4) count = 4;
+                            if (ratio >= 1.40 && ratio < 2.35) count = 2;
+                            else if (ratio >= 2.35 && ratio < 3.05) count = 3;
+                            else if (ratio >= 3.05 && ratio < 4.20) count = 4;
 
                             fingerCount += count;
                             if (fingerCount > 5)
@@ -440,7 +368,7 @@ namespace ThesisProj
         private bool[] ExtractRegion(int xi, int yi, byte id)
         {
             bool[] region = new bool[Utility.HandWidth * Utility.HandHeight];
-            int r = (int)Math.Floor(InnerCircleRadius * OuterCircleMultiplier);
+            int r = OuterCircleRadius;
             int area = 0;
 
             Vector n = new Vector(_handJoint.X - _wristJoint.X, _handJoint.Y - _wristJoint.Y);
@@ -460,13 +388,6 @@ namespace ThesisProj
                     // Already visited.
                     continue;
                 }
-
-                //Vector q = new Vector(x - _wristJoint.X, y - _wristJoint.Y);
-                //if (n.X * q.X + n.Y * q.Y <= 0)
-                //{
-                //    // Over the wrist.
-                //    return null;
-                //}
 
                 region[y * Utility.HandWidth + x] = true;
                 ++area;
@@ -506,6 +427,11 @@ namespace ThesisProj
                 {
                     _fingersMask[i] = id;
                 }
+            }
+
+            if (area < 15)
+            {
+                return null;
             }
 
             return region;
@@ -576,7 +502,7 @@ namespace ThesisProj
 
         private Tuple<Point, Point, double> CalculateFingerBase(bool[] mask, Rect position)
         {
-            int r = (int)Math.Floor(InnerCircleRadius * OuterCircleMultiplier);
+            int r = OuterCircleRadius;
             List<Point> candidates = new List<Point>();
 
             for (int yi = position.Y; yi < position.Y + position.Height; ++yi)

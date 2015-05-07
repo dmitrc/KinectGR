@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThesisProj", "ThesisProj\ThesisProj.csproj", "{AF2CD7D8-1EAD-435F-BC3E-8D0F6FBD658C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinectGR", "KinectGR\KinectGR.csproj", "{AF2CD7D8-1EAD-435F-BC3E-8D0F6FBD658C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

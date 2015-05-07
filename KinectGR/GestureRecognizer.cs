@@ -12,7 +12,7 @@ using Emgu.CV.Util;
 using System.Drawing;
 using System.Timers;
 
-namespace ThesisProj
+namespace KinectGR
 {
     /// <summary>
     /// Class, that matches the image of the hand with a set of pre-defined gestures.
@@ -119,9 +119,10 @@ namespace ThesisProj
                 }
             }
 
-            if (bestFit.RecognizedData.ContourMatch * bestFit.RecognizedData.HistogramMatch <= 0.02 //0.01
-                && bestFit.RecognizedData.ContourMatch <= 1 //0.80
-                && bestFit.RecognizedData.HistogramMatch <= 0.35) //0.20
+            // Reliable, but strict: 0.01, 0.80, 0.20
+            if (bestFit.RecognizedData.ContourMatch * bestFit.RecognizedData.HistogramMatch <= 0.0125
+                && bestFit.RecognizedData.ContourMatch <= 0.80
+                && bestFit.RecognizedData.HistogramMatch <= 0.20)
             {
                 return bestFit;
             }

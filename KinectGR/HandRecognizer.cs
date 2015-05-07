@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
 
-namespace ThesisProj
+namespace KinectGR
 {
     internal class HandRecognizer
     {
