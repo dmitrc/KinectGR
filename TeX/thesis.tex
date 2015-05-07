@@ -11,7 +11,7 @@
 \pdfadjustspacing=1
 
 \newcommand{\myname}{Dmitrii Cucleschin}
-\newcommand{\mytitle}{Human-Machine Interaction Through Gesture Recognition (on the example of divers' sign language)}
+\newcommand{\mytitle}{Human-Machine Interaction Through Gesture Recognition}
 \newcommand{\mysupervisor}{Prof. Andreas Birk}
 
 \hypersetup{
@@ -173,44 +173,36 @@ As a result, we will base the implementation on native SDK, to allow us to unloc
     The following basic gesture set has been selected for the purposes of this project. Default semantics of those gestures are described, and the basic actions are assigned to them, based on some of the suggestions presented in CADDIAN language draft \cite{AB01}. Let's separate all the gestures into two kinds: \textbf{static}, corresponding to a single hand expression and \textbf{dynamic},  building upon the static ones, but also tracking hand animation (such as movement or a sequence of changing states). This list is meant only as the initial draft and should be easily extensible, once more features are needed.
     
     \subsubsection{Static gestures}
-%!
-%Change the gesture set to the finalized one    
 
   \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.4]{static-gestureset.png}
+  \includegraphics[scale=0.6]{static-gestureset.png}
   \caption{Static gesture set}
   \end{figure}
     
     \begin{itemize}
-    \item \textbf{s1.} Ascend. The longer user keeps the gesture, bigger the priority.
-    \item \textbf{s2.} Descend. The longer user keeps the gesture, bigger the priority.
-    \item \textbf{s3.} Turn $90\degree$ to the right.
-    \item \textbf{s4.} Turn $90\degree$ to the left.
-    \item \textbf{s5.} Confirm action / Accelerate.
-    \item \textbf{s6.} Cancel action / Decelerate.
-    \item \textbf{s7.} Switch between piloting and task management (for gestures s6 and s7).
-    \item \textbf{s8.} Predator (for example, shark) has been spotted, use caution.
-    \item \textbf{s9.} Abort the current operation.
-    \item \textbf{s10.} Contact the crew with operation logs and message from the diver.
-    \item \textbf{s11.} Take a picture.
-    \item \textbf{s12.} Take a picture and a 3D scan of surrounding area.
+    \item \textbf{s1.} Request to initiate communication with the ground crew.
+    \item \textbf{s2.} Take a picture of the area.
+    \item \textbf{s3.} Start/stop recording sensor data.
+    \item \textbf{s4.} Stop current tasks and check whether the area is safe.
+    \item \textbf{s5.} Ascend or descend \textit{(depending on direction)}.
+    \item \textbf{s6.} Confirm action or abort action \textit{(depending on direction)}.
+    \item \textbf{s7.} Set/change the active user.
+    \item \textbf{s8.} Synchronize recorded data with the server.
     \end{itemize}
     
-    \subsubsection{Dynamic gestures}
- %!
-%These gesture descriptions are pathetic.
+ \subsubsection{Dynamic gestures}
 
   \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.5]{dynamic-gestureset.png}
+  \includegraphics[scale=0.6]{dynamic-gestureset.png}
   \caption{Dynamic gesture set}
   \end{figure}
   
   \begin{itemize}
-    \item \textbf{d1.} Emergency. Immediate abort of operations and ascend are requested. Faster the movement, bigger the priority.
-    \item \textbf{d2.} Warning. Pause the operation and analyze the surroundings, contact the crew. Faster the movement, bigger the priority.
-    \item \textbf{d3.} Closing and opening fist rapidly. Indicates that the oxygen is running out.
+    \item \textbf{d1.} Waving hand indicates that robot should listen for and perform a new task with a bigger priority over a current one.
+    \item \textbf{d2.} Waving pointer finger indicates emergency. Immediate abort of current operations and ascend to the surface are requested.
+    \item \textbf{d3.} Closing and opening hand rapidly is an indication that user's $O_2$ is running out.
     \end{itemize}
 
 \subsection{Environment assumptions.}
@@ -332,7 +324,7 @@ To find the regions, corresponding to fingers, we will sample the values (360 fo
 
  \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.7]{hand-recognized.png}
+  \includegraphics[scale=1.4]{hand-recognized.png}
   \caption{Model after finger recognition}
   \end{figure}
 
@@ -343,11 +335,11 @@ However, in some of the cases this will not be enough to make a correct judgemen
 The values of this ratio can be analyzed, using the robust constants as suggested by Vitali Henne \cite{VH01} to make the final approximation regarding the number of fingers in the region.
 
 \begin{itemize}
-\item $\lambda < 1.4$ : 1 finger in the region
-\item $1.4 <= \lambda < 2.4$ : 2 fingers in the region
-\item $2.4 <= \lambda < 3.4$ : 3 fingers in the region
-\item $3.4 <= \lambda < 4.4$ : 4 fingers in the region
-\item $\lambda >= 4.4$: Discard the case as anatomically impossible.
+\item $\lambda < 1.40$ : 1 finger in the region
+\item $1.40 <= \lambda < 2.35$ : 2 fingers in the region
+\item $2.35 <= \lambda < 3.05$ : 3 fingers in the region
+\item $3.05 <= \lambda < 4.20$ : 4 fingers in the region
+\item $\lambda >= 4.20$: Discard the case as anatomically impossible.
 \end{itemize}
  
 \subsection{Recognizing static gestures}
@@ -384,7 +376,7 @@ After analyzing the output of the algorithm, a cutoff threshold for similarity w
 
 \end{itemize}
 
-In addition, another small threshold value is used for the product of the results of contour match and histogram match (cutoff threshold = 0.01). That ensures, that even if one of the values fluctuates, the overall similarity factor is very high.
+In addition, another small threshold value is used for the product of the results of contour match and histogram match (cutoff threshold = 0.0125). That ensures, that even if one of the values fluctuates, the overall similarity factor is very high.
 
 Using this comparison method, the hand will be evaluated against the entire gesture set and the closest match satisfying the cutoff constraints will be returned.
 
@@ -392,8 +384,11 @@ In some of the cases (like \textbf{s1/s2} and \textbf{s5/s6}), the direction vec
 
 Since the algorithm relies heavily on shape and contour of the hand, it is possible that recognition results and precision may vary from a person to person. However, because of this nature of storing gestures as pictures, it's trivial to adapt the system to a particular user's hand to improve the reliability of the recognition algorithm. To do that, user has to show a desired gesture, press the "Save" button, and replace the existing gesture image (or add the new one) with the one outputted to the directory, from which the program is launched. 
 
-%!
-%Add a picture with a Save button here
+  \begin{figure}[H]
+  \centering
+  \includegraphics[scale=1]{hand-control.png}
+\caption{Results of gesture recognition (with option to save the mask).}
+\end{figure}
 
 \subsection{Recognizing dynamic gestures}
   
@@ -442,8 +437,7 @@ Either of the following two methods can be used to try the final application for
 
   \begin{figure}[H]
   \centering
-  %! Fix scale
-  \includegraphics[scale=1]{app-gui.png}
+  \includegraphics[scale=0.6]{app-gui.png}
 \caption{Application's interface}
 \end{figure}
 
