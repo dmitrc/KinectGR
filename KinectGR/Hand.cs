@@ -143,15 +143,17 @@ namespace KinectGR
             double rx = 0;
             double ry = 0;
 
-            for (int i = 0; i < candidates.Count; ++i)
-            {
-                rx += candidates[i].X;
-                ry += candidates[i].Y;
-            }
-            rx /= candidates.Count;
-            ry /= candidates.Count;
+            candidates.Sort((a, b) => Utility.Dist(b, _handJoint).CompareTo(Utility.Dist(a, _handJoint)));
 
-            return new Point((int)rx, (int)ry);
+            //for (int i = 0; i < candidates.Count; ++i)
+            //{
+            //    rx += candidates[i].X;
+            //    ry += candidates[i].Y;
+            //}
+            //rx /= candidates.Count;
+            //ry /= candidates.Count;
+
+            return candidates[0];
         }
 
         public int CalculateInnerRadius()
@@ -191,7 +193,7 @@ namespace KinectGR
                     ++blackCount;
                 }
 
-                if (blackCount > SAMPLE_COUNT/30)
+                if (blackCount > SAMPLE_COUNT/20)
                 {
                     return false;
                 }
@@ -278,9 +280,9 @@ namespace KinectGR
                         {
                             Rect position = CalculateFingerPosition(candidate);
                             PointF fingertip = CalculateFingerTip(candidate, position);
-                            Tuple<Point, Point, double> baseLine = CalculateFingerBase(candidate, position);
+                            Tuple<PointF, PointF> baseLine = CalculateFingerBase(candidate, position);
 
-                            double baseWidth = baseLine.Item3;
+                            double baseWidth = Utility.Dist(baseLine.Item1, baseLine.Item2);
 
                             // Something is wrong...
                             if (baseWidth <= 1)
@@ -295,13 +297,13 @@ namespace KinectGR
                                 continue;
                             }
 
-                            double refWidth = (double)InnerCircleRadius * 0.9 * 2;
+                            double refWidth = (double)InnerCircleRadius * 2;
                             double ratio = baseWidth * 4 / refWidth;
 
                             int count = 1;
-                            if (ratio >= 1.425 && ratio < 2.35) count = 2;
-                            else if (ratio >= 2.35 && ratio < 3.05) count = 3;
-                            else if (ratio >= 3.05 && ratio < 4.20) count = 4;
+                            if (ratio > 1.320 && ratio <= 2.315) count = 2;
+                            else if (ratio > 2.315 && ratio <= 2.815) count = 3;
+                            else if (ratio > 2.815 && ratio <= 4) count = 4;
 
                             fingerCount += count;
                             if (fingerCount > 5)
@@ -500,10 +502,10 @@ namespace KinectGR
             return new PointF(x, y);
         }
 
-        private Tuple<Point, Point, double> CalculateFingerBase(bool[] mask, Rect position)
+        private Tuple<PointF, PointF> CalculateFingerBase(bool[] mask, Rect position)
         {
             int r = OuterCircleRadius;
-            List<Point> candidates = new List<Point>();
+            List<PointF> candidates = new List<PointF>();
 
             for (int yi = position.Y; yi < position.Y + position.Height; ++yi)
             {
@@ -536,19 +538,19 @@ namespace KinectGR
 
                     if (neighbor)
                     {
-                        candidates.Add(new Point(xi, yi));
+                        candidates.Add(new PointF(xi, yi));
                     }
                 }
             }
 
             if (candidates.Count < 2)
             {
-                return new Tuple<Point, Point, double>(new Point(), new Point(), -1);
+                return new Tuple<PointF, PointF>(new PointF(0,0), new PointF(0,0));
             }
 
             candidates.Sort((x, y) => x.X > y.X ? -1 : x.X < y.X ? 1 : x.Y > y.Y ? -1 : x.Y < y.Y ? 1 : 0);
 
-            return new Tuple<Point, Point, double>(candidates[0], candidates[candidates.Count - 1], Utility.Dist(candidates[0], candidates[candidates.Count - 1]));
+            return new Tuple<PointF, PointF>(candidates[0], candidates[candidates.Count - 1]);
         }
     }
 }
