@@ -356,8 +356,13 @@ The values of this ratio can be analyzed, using the modification of working cons
 
 Then, we can separate the base, according to number of fingers in the regions, connect those points with discovered fingertip and process each of the inferred fingers separately. An example of a case, where such processing is done is displayed on an image below.
 
-%!
-%Insert inferred fingers image
+\begin{figure}[H]
+\centering
+\includegraphics[scale=1]{inferred-fingers.png}
+\caption{Inferred fingers detected and processed}
+\end{figure}
+
+In some cases it is possible that overall variation to the width of extracted regions can lead to errors, where one extra finger is detected or some fingers are missing. In that case, no gestures will be recognized for that particular frame and algorithm will retry with the next frame.
 
 \subsection{Recognizing static gestures}
 
@@ -524,6 +529,7 @@ Depth mask of the hand can be reused to calculate the differences in depth at mi
 
 Summarizing all the information presented above, we can see that gesture recognition, despite being a pretty novel technology, has a lot of useful applications. In our case, communicating with robot underwater can be complicated due to a number of natural events. Gesture recognition system allows to control the robot from the safe distance and keep track of safety of the diver. Step-by-step implementation of gesture recognition was presented, starting from hand segmentation and ending with identifying different kinds of gestures. It proved quite reliable in specific cases and further work will be performed to improve the application to be as robust as possible.  
 
+\newpage
 \section{Acknowledgements.}
 I would like to thank all the people, who helped me to succeed with implementing this guided research project:
 
