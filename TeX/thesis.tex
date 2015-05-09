@@ -90,9 +90,17 @@ Signature \hfill Place, Date
 
 \section*{Abstract.}
 
-Nowadays, we live in the world, where machines get more and more advanced and are tailored for a variety of different tasks. To initiate one of such tasks, person has to communicate the desired function to a machine through some sort of input device. Unfortunately, in some scenarios, common input devices (like keyboard and mouse) are unavailable and one has to implement a different communication method.
+%!
+%Few ways to interact with them...
+%All sizes and shapes...
+%More ways than we are used to...
 
-In this thesis, I will be focusing on developing and testing one of such methods - communication with the machine via hand gestures. There are number of cases, where such method is more convenient than the analogues, but here we will focus on the specific case of implementing such a system for an underwater diver companion robot. Robot will be equipped with stereo camera and will be taught to process basic diver sign language, allowing him to monitor health and safety of the human diver, as well as to receive instructions regarding the tasks and further steps it needs to perform. 
+%!
+%Devices everywhere; commonly used input methods.
+%Inputs are streamlined, more intuitive.
+%Some don't support it.
+%Gesture recognition!
+%How will we do it?
 
 \newpage
 \tableofcontents
@@ -106,6 +114,9 @@ In this thesis, I will be focusing on developing and testing one of such methods
 
 %!
 %Add how divers need to carry waterproof boards and markers around and stuff.
+%Communicate with robot like with a human.
+%Don't need to learn extra skills.
+%Effective message transmission.
 
 Robotics department of Jacobs University Bremen has been working on several projects involving underwater robots. One of such projects, CADDY (Cognitive Autonomous Diving Buddy), is meant as an assistant for the diver, allowing to transport objects, take photographs and scan the surrounding area. However, equipment like this can be quite bulky and can possibly put the diver in danger in critical situations. Therefore, a concise, hands-free communication method has to be implemented between human and robot to initiate tasks and report current danger status. Since CADDY is equipped with a depth camera, in this project we will be focusing on implementing one of such methods - communication using hand gestures. Equipped with an ability to process diver's sign language, CADDY can be controlled from a safe distance, while helping diver and notifying others in case of any emergencies.
 
@@ -115,7 +126,7 @@ Based on the problem discussed above, the following research question arises, th
 
 \textbf{Can a robust gesture-based communication system be implemented for a use in the underwater robot?}
 
-Since in a system like this reliability is very critical, it isn't enough to just implement the application logic. Thorough testing has to be performed to make sure all of the components of the system are functioning as expected. Therefore, the scope of this project isn't limited to research and implementation, but also creating proper design specifications and quality assurance.
+Since in a system like this reliability is very critical, it is not enough to just implement the application logic. Thorough testing has to be performed to make sure all of the components of the system are functioning as expected. Therefore, the scope of this project will not be limited to research and implementation, but also creating proper design specifications and quality assurance.
 
 \subsection{Expected Research Contribution.}
 
@@ -125,9 +136,9 @@ As a result of this research project, standalone gesture recognition application
 
 Robot development has been advancing a lot over the course of last 10 years. We transcended all the way from simple programmable robots to truly autonomous machines, that can perceive the environment around them and interact with it. A lot of research has been done to perfect the communication with these "new-generation" robots. In 2006, a report \cite{SA01} has been published, that shows that natural interaction (speech recognition, face recognition, gesture processing, etc.) is a great way of performing such a task, because of variety of input data and emotional feedback as a result of such a communication. Furthermore, artificial intelligence researchers \cite{SA02} have discovered that when gesture recognition is present, humans tend to engage more with a robot and have better reviews, regarding their experience. However, such natural interfaces are not only useful for generic communication, but in some cases also for therapy. Robot AURORA \cite{SA03} aims to aid children with autism by being a salient observer with changeable behavior. Researchers note, that the emotional feedback is one of the most important variables in this scenario and natural interaction through speech and gestures help to achieve that.
 
-Even beyond research projects, the idea of implementing interface for consumer devices, controlled by natural interactions, isn't novel. At the moment, more and more manufacturers are investigating the possibility of adding voice or gesture control in their devices or applications. When the first Microsoft Kinect came out for Xbox 360, people were skeptical about the applications of a depth camera. Skeletal recognition and hand tracking were still quite choppy (partially due to hardware specifications and partially due to beta software) and controls using the camera were not intuitive and fluid. However, with the release of Xbox One and updated Kinect sensor, gesture control became one of the easiest ways to interact with the console. Kinect recognizes one of the three basic gestures: open hand, closed hand (fist) and lasso (2 fingers open), and bases interactions with the console on these. IR sensor with a better resolution allows for recognition in low- to no- light conditions. However, Microsoft isn't the only company, that is interested in providing such features. In their newest lineup of Smart TVs, Samsung introduced a feature \cite{SM01}, which allows basic control of your television with the gestures. Using a regular camera, that is built-in in the unit, TV can recognize simple gestures, like flip movement, thumbs up, selection etc.
+Even beyond research projects, the idea of implementing interface for consumer devices, controlled by natural interactions, isn not novel. At the moment, more and more manufacturers are investigating the possibility of adding voice or gesture control in their devices or applications. When the first Microsoft Kinect came out for Xbox 360, people were skeptical about the applications of a depth camera. Skeletal recognition and hand tracking were still quite choppy (partially due to hardware specifications and partially due to beta software) and controls using the camera were not intuitive and fluid. However, with the release of Xbox One and updated Kinect sensor, gesture control became one of the easiest ways to interact with the console. Kinect recognizes one of the three basic gestures: open hand, closed hand (fist) and lasso (2 fingers open), and bases interactions with the console on these. IR sensor with a better resolution allows for recognition in low- to no- light conditions. However, Microsoft is not the only company, that is interested in providing such features. In their newest lineup of Smart TVs, Samsung introduced a feature \cite{SM01}, which allows basic control of your television with the gestures. Using a regular camera, that is built-in in the unit, TV can recognize simple gestures, like flip movement, thumbs up, selection etc.
 
-However, the potential of this technology isn't limited to just entertainment. Number of startups are working on the devices, which would allow developers to embed gesture control in any application (most notable examples are Leap Motion sensor and Myo armband). With the powerful SDKs, it's just a matter of time until the technology is perfected enough for gestural interaction to become an everyday part of our lives. There are already some impressive experiments using the power of gestures: Microsoft Research has presented a Kinect sign language translator for American and Chinese languages \cite{MS02}, as well as a tool for the hospitals that allows touchless interaction with the computer during surgeries \cite{MS03}. Nowadays, Microsoft Research is working on a new tool, called Handpose \cite{MS04}, that uses complex machine learning algorithms to enable developers to track hand gestures in complete 3D with the upcoming iterations of Kinect.
+However, the potential of this technology is not limited to just entertainment. Number of startups are working on the devices, which would allow developers to embed gesture control in any application (most notable examples are Leap Motion sensor and Myo armband). With the powerful SDKs, it is just a matter of time until the technology is perfected enough for gestural interaction to become an everyday part of our lives. There are already some impressive experiments using the power of gestures: Microsoft Research has presented a Kinect sign language translator for American and Chinese languages \cite{MS02}, as well as a tool for the hospitals that allows touchless interaction with the computer during surgeries \cite{MS03}. Nowadays, Microsoft Research is working on a new tool, called Handpose \cite{MS04}, that uses complex machine learning algorithms to enable developers to track hand gestures in complete 3D with the upcoming iterations of Kinect.
 
 As we can see, even though the technology is still maturing and is not available to a lot of people, number of useful applications based on it is growing every day and the overall potential is very high.
 
@@ -292,11 +303,11 @@ After the frames are captured, the raw depth data in retrieved as \textit{ushort
 
 \subsection{Hand segmentation}
 
-As a next step, we will analyze the pixel neighborhood, corresponding to the hand joints, returned by the sensor. If those pixels are not a part of the body (in the other words, are in the background), we can judge that Kinect didn't return the right values for this frame and, therefore, can skip all the further processing. In the other case, a modified Scanline FloodFill algorithm (see \textit{Appendix, section 10.1}) will be used to segment and draw the binary mask of the hand. This particular version of algorithm was chosen for its superior efficiency, analyzing the lines of an image as opposed to individual pixels, resulting in much smaller queue size and thus, less iterations.
+As a next step, we will analyze the pixel neighborhood, corresponding to the hand joints, returned by the sensor. If those pixels are not a part of the body (in the other words, are in the background), we can judge that Kinect did not return the right values for this frame and, therefore, can skip all the further processing. In the other case, a modified Scanline FloodFill algorithm (see \textit{Appendix, section 10.1}) will be used to segment and draw the binary mask of the hand. This particular version of algorithm was chosen for its superior efficiency, analyzing the lines of an image as opposed to individual pixels, resulting in much smaller queue size and thus, less iterations.
 
 Instead of using a generic threshold in both directions, two separate thresholds will be used: one large one to apply to values closer than the hand's center (to ensure capturing of all the possible hand positions) and a smaller one to analyze values further away. That can be used only based on our previous assumption, that the hand is the closest object in sensor, allowing us to assume that no objects will interfere with forward thresholding. Additional check is implemented to check the distance from the hand's Z coordinate to the corresponding shoulder's Z coordinate (or head, if not available), that is aimed to minimize the number of cases, where the backwards threshold is large enough to segment bigger regions of the body, returning the data not suitable for proper gesture recognition.\\
 
-In the algorithm, there is an additional check (denoted with \textit{BeyondWrist}) is made to crop values behind the wrist line. That is performed by disregarding all the pixels, projections of which on the plane, described by $v = (handX - wristX, handY - wristY)$, as returned by the Kinect sensor, are below the wrist point. However, due to the noise in processing of such a small region, often mistakes occur where the wrist point jumps and some fingers are being mistakenly cropped. That's why the current implementation doesn't rely on this and instead attempts to achieve different means of classifying the wrist region later on. Should a special identifying marker be allowed or additional calibration of Kinect  to return more precise coordinates, this method would return a very accurate representation of the wrist line.
+In the algorithm, there is an additional check (denoted with \textit{BeyondWrist}) is made to crop values behind the wrist line. That is performed by disregarding all the pixels, projections of which on the plane, described by $v = (handX - wristX, handY - wristY)$, as returned by the Kinect sensor, are below the wrist point. However, due to the noise in processing of such a small region, often mistakes occur where the wrist point jumps and some fingers are being mistakenly cropped. That is the reason why the current implementation does not rely on this and instead attempts to achieve different means of classifying the wrist region later on. Should a special identifying marker be allowed or additional calibration of Kinect  to return more precise coordinates, this method would return a very accurate representation of the wrist line.
 
 \begin{figure}[H]
 \centering
@@ -317,9 +328,9 @@ Before identifying points of interest on our segmented binary image, let's consi
 \caption{General model of the hand (taken from \cite{OT01})}
 \end{figure}
 
-Next step is to locate so-called "palm point", the center point of the palm, which will help us to identify the palm, segment it and determine approximate orientation of the hand. To do that, we will use an optimized 2D distance transform algorithm (as derived by \cite{DT01}, implementation details in \textit{Appendix, section 10.2}), where the matrix of the same size as the mask is filled with distances to the closest zero pixel boundary. The point with $d[i] = max(d)$ (or an average if multiple points of this kind exist) is defined to be a palm point.
+Next step is to locate so-called "palm point", the center point of the palm, which will help us to identify the palm, segment it and determine approximate orientation of the hand. To do that, we will use an optimized 2D distance transform algorithm (as derived by \cite{DT01}, implementation details in \textit{Appendix, section 10.2}), where the matrix of the same size as the mask is filled with distances to the closest zero pixel boundary. The point with $d[i] = max(d)$ (or closest one to Kinect's hand joint if multiple points of this kind exist) is defined to be a palm point.
 
-Now, let's draw a circle around this point, increasing radius every time until 5\% or more of the sampling points correspond to non-skin values . Such a circle with a maximal radius will encompass the entire palm and is called inner circle. Once we've determined that, we can draw another circle, with the radius larger than inner circle's. Experimental factor of 1.60 was selected to separate the fingers, but retain the thumb even at its larger angle. This larger circle will function as a great mask, allowing us to analyze pixels outside of it for potential finger candidates.
+Now, let's draw a circle around this point, increasing radius every time until 5\% or more of the sampling points correspond to non-skin values . Such a circle with a maximal radius will encompass the entire palm and is called inner circle. Once we have determined that, we can draw another circle, with the radius larger than inner circle's. Experimental factor of 1.60 was selected to separate the fingers, but retain the thumb even at its larger angle. This larger circle will function as a great mask, allowing us to analyze pixels outside of it for potential finger candidates.
 
 The result of palm segmentation is illustrated at the image below:\\
 
@@ -332,7 +343,7 @@ The result of palm segmentation is illustrated at the image below:\\
 
 \subsection{Finger recognition}
 
-To find the regions, corresponding to fingers, we will sample the values, located on the outer circle. If the pixel belongs to the mask of the hand, a connected region will be analyzed using a simplified version of Flood Fill to yield a position, occupied by the finger. At this point, regions smaller than the specified area cutoff (defined experimentally to be 15 pixels), will be discarded as noise to avoid detecting extra fingers. It's possible then to traverse presumed finger regions to find a fingertip (which is anatomically defined to be the point, furthest away for the center of the palm), as well as directional vector pointing from the base of the finger to that point (representing a simplified model of a finger).\\
+To find the regions, corresponding to fingers, we will sample the values, located on the outer circle. If the pixel belongs to the mask of the hand, a connected region will be analyzed using a simplified version of Flood Fill to yield a position, occupied by the finger. At this point, regions smaller than the specified area cutoff (defined experimentally to be 15 pixels), will be discarded as noise to avoid detecting extra fingers. It is possible then to traverse presumed finger regions to find a fingertip (which is anatomically defined to be the point, furthest away for the center of the palm), as well as directional vector pointing from the base of the finger to that point (representing a simplified model of a finger).\\
 
 \begin{figure}[H]
 \centering
@@ -373,7 +384,7 @@ Then, for every recognized model of the hand, the following methods are used to 
 \begin{itemize}
 \item \textbf{Number of fingers comparison.}
 
-Obviously, if the number of fingers on the hand doesn't match the desired one for the particular gesture, we should halt the computation immediately and jump to the next gesture. This check ensures that fewer contours are being analyzed and compared and allows us to increase the threshold constants for the next two methods to allow more variation in the overall hand shape.\\
+Obviously, if the number of fingers on the hand does not match the desired one for the particular gesture, we should halt the computation immediately and jump to the next gesture. This check ensures that fewer contours are being analyzed and compared and allows us to increase the threshold constants for the next two methods to allow more variation in the overall hand shape.\\
 
 \item \textbf{Contour match.}
 
@@ -384,13 +395,13 @@ As a first step, we extract the contours from both the gesture image and origina
 
 Here, $h_i^A$ and $h_i^B$ represent seven Hu moments \cite{ZH02} of an image. Since the specific properties of Hu moments are rotation and scale invariance (as well as skew invariance for seventh moment), this will allow us to detect gestures even when the hand is rotated.
 
-It's important to note, however, that since we're detecting gestures in 2D space of a depth frame, rather than 3D space, some gestures may stop being recognized if the overall contour changes too much due to different perspective of a hand for the camera.  If the environment assumptions are fulfilled and hand is fully extended in front of the body, these problems should not arise.
+It is important to note, however, that since we are detecting gestures in 2D space of a depth frame, rather than 3D space, some gestures may stop being recognized if the overall contour changes too much due to different perspective of a hand for the camera.  If the environment assumptions are fulfilled and hand is fully extended in front of the body, these problems should not arise.
 
 After analyzing the output of the algorithm (smaller values are better), a cutoff threshold for similarity was chosen to be 0.80.\\
 
 \item \textbf{Histogram match.}
 
-Since contour of the hand can be quite similar for different gestures, it's not enough to reliably determine whether a particular gesture has been shown. To solve this problem we will need to find another comparison metric, that would add confidence to our recognized gesture.
+Since contour of the hand can be quite similar for different gestures, it is not enough to reliably determine whether a particular gesture has been shown. To solve this problem we will need to find another comparison metric, that would add confidence to our recognized gesture.
 
 One of such metrics can be derived by calculating and comparing the 2D pair-wise geometrical histograms (PGH) \cite{SC01} of the images. The algorithm will calculate the angle and minimum/maximum distances for every pair of edges in the contour. This is done by selecting each of the edges as a base, while the function is looping through all other edges, recording distances from the points on the non-base edge and line of the base edge. The angle will define a row of the histogram in which all the bins that represent the distance between retrieved minimum and maximum distances are incremented.
 
@@ -407,7 +418,7 @@ Using this comparison method, the hand will be evaluated against the entire gest
 
 Additionally, in the case where at least one finger is displayed, direction of the hand will be determined by averaging all the fingertips and observing the distance between the resulting point and extrema (up-, down-, left- and right-most points). In some cases (like with gestures \textbf{s5} and \textbf{s6}), a completely different action can be performed on a recognized gesture, depending on its direction.
 
-Since the algorithm relies heavily on shape and contour of the hand, it is possible that recognition results and precision may vary from a person to person. However, because of this nature of storing gestures as pictures, it's trivial to adapt the system to a particular user's hand to improve the reliability of the recognition algorithm. To do that, user has to show a desired gesture, press the "Save" button, and replace the existing gesture image (or add the new one) with the one outputted to the directory, from which the program is launched. 
+Since the algorithm relies heavily on shape and contour of the hand, it is possible that recognition results and precision may vary from a person to person. However, because of this nature of storing gestures as pictures, it is trivial to adapt the system to a particular user's hand to improve the reliability of the recognition algorithm. To do that, user has to show a desired gesture, press the "Save" button, and replace the existing gesture image (or add the new one) with the one outputted to the directory, from which the program is launched. 
 
 \begin{figure}[H]
 \centering
@@ -415,7 +426,7 @@ Since the algorithm relies heavily on shape and contour of the hand, it is possi
 \caption{Results of gesture recognition (with option to save the mask).}
 \end{figure}
 
-Some other methods have been used for this purpose, such as Dynamic Time Warping \cite{DR01}, Earth Mover's Distance \cite{ZH01} or SURF feature detection \cite{HB01}.  However, despite robustness and excellent results, that these algorithms produce, their computational complexity often doesn't allow us to use reliably them in real-time and multi-hand recognition scenario.
+Some other methods have been used for this purpose, such as Dynamic Time Warping \cite{DR01}, Earth Mover's Distance \cite{ZH01} or SURF feature detection \cite{HB01}.  However, despite robustness and excellent results, that these algorithms produce, their computational complexity often does not allow us to use reliably them in real-time and multi-hand recognition scenario.
 
 \subsection{Recognizing dynamic gestures}
 
@@ -446,7 +457,7 @@ Either of the following two methods can be used to try the final application for
 \begin{itemize}
 \item Install drivers from Kinect SDK 2.0 (if needed).
 \item Download and extract \href{https://github.com/dmitryfd/KinectGR/releases/download/v1.0-demo/KinectGR_v1.0.zip}{\textit{the latest build}}.
-\item Run KinectGR.exe. You're done!
+\item Run KinectGR.exe. That is it!
 \end{itemize}
 
 \subsubsection{Build the solution.}
@@ -456,7 +467,7 @@ Either of the following two methods can be used to try the final application for
 \item Download the solution from \href{https://github.com/dmitryfd/KinectGR}{\textit{the Github repositiory}}.
 \item Launch the solution and ensure that EmguCV and Kinect SDK references are set correctly, and OpenCV dlls are being copied to the build path. 
 \item Copy \textbf{Gestures} folder to \textit{C:/Gestures} (or change the paths in FrameProcessor.cs).
-\item Build (in x86 mode) and run! \\Don't forget to connect your Kinect to a compatible USB 3.0 port.
+\item Build (in x86 mode) and run! \\Do not forget to connect your Kinect to a compatible USB 3.0 port.
 \end{itemize}
 
 \subsection{GUI.}
@@ -491,6 +502,11 @@ For more information regarding the flow of the application, please, refer to the
 
 Evaluation criteria for this research project are strongly coupled with the project requirements and implementation quality. The project is assessed against the following criteria, that can be used to evaluate the results of this thesis:
 
+\subsection{Performance}
+
+%!
+%Write me!
+
 \subsection{Functionality.}
 Application successfully implements all the features, described in this thesis paper. One user is being tracked and hand segmentation starts when all the environment assumptions are fulfilled (e.g. hand extended at least 30 cm in front of the body). Then, it attempts to recognize a static gesture and displays the results. Finally, sequence of frames is analyzed to notify the user about dynamic gestures recognized (if any).
 
@@ -505,8 +521,11 @@ Application successfully implements all the features, described in this thesis p
 \item Since dynamic gestures rely heavily on static gesture recognition, the results of this section highly depend on the results of the previous one. Gestures have been recognized in vast majority of the cases, where static gesture recognition succeeded and hand displacement was within the defined threshold. 
 \end{itemize}
 
+%!
+%Add pictures and graphs
+
 \subsection{Modularity.}
-Because of the way the application is structured, it's very easy to alter specific parts of the system, while leaving the others intact. As described in the previous section, changing the gesture set of the application and adapting the program for a particular need is intuitive and simple. This successfully fulfills the goals set in the proposal part of the project and allows for easier adaptation later on.
+Because of the way the application is structured, it is very easy to alter specific parts of the system, while leaving the others intact. As described in the previous section, changing the gesture set of the application and adapting the program for a particular need is intuitive and simple. This successfully fulfills the goals set in the proposal part of the project and allows for easier adaptation later on.
 
 \subsection{Code Quality and Documentation.}
 Strict C\# code design guidelines were enforced over the course of development, using JetBrains' Resharper plugin. Each class has its own  purpose and scope, variables and methods have descriptive names, and comments are supplied in places where code is non-trivial. Finally, XML-style comments for classes and methods allow to easily generate HTML documentation pages (using Sandcastle).
@@ -517,7 +536,7 @@ Over the course of development I was adhering to \textbf{test-driven development
 \section{Discussion.}
 
 \subsection{Improving the results.}
-Sadly, Kinect SDK is not yet optimized for closed-range tracking of the specific body joints and instead, it focuses on tracking skeleton as a whole. That results in the number of situations, when inferred wrist joint location is completely out of sync with the actual position of the wrist. That, in turn, affects the precision of the gesture recognition by mistakenly classifying some fingers as wrist in the worst cases. 
+Kinect SDK, that is used for my implementation, is not yet optimized for closed-range tracking of the specific body joints and instead, it focuses on tracking skeleton as a whole. That results in the number of situations, when inferred wrist joint location is completely out of sync with the actual position of the wrist. That, in turn, affects the precision of the gesture recognition by mistakenly classifying some fingers as wrist in the worst cases. 
 
 Overall robustness of the system could be further improved by implementing a calibration phase, that would calculate specific constants and save hand masks specifically for user's hand, tailoring the experience for him. Finally, using more methods for gesture recognition could bring the overall accuracy up, reducing the amount of false classifications, requiring better hardware specification in process.
 
