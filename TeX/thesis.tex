@@ -90,17 +90,9 @@ Signature \hfill Place, Date
 
 \section*{Abstract.}
 
-%!
-%Few ways to interact with them...
-%All sizes and shapes...
-%More ways than we are used to...
+Nowadays, it's hard to imagine modern human's life without all the devices we use. Mobile phones, laptops, cameras and many other things have become our daily companions that we use to communicate, work and play. Despite there being so many different kinds of devices, there are only few traditional ways to control them: via physical buttons (e.g. mouse and keyboard), touch screen input, or, since recently, voice recognition. However, what should one do if the device can't support any of the above?
 
-%!
-%Devices everywhere; commonly used input methods.
-%Inputs are streamlined, more intuitive.
-%Some don't support it.
-%Gesture recognition!
-%How will we do it?
+If this research project we will focus on implementing a gesture recognition system for an underwater diving assisting robot. Equipped with such software, robot can be controlled hands-free, while it monitors the diver's safety and performs its assigned tasks. Such way of interaction is so natural for people with diving experience, that it requires almost no special training and can assist in communicating actions quicker. We are going to implement a prototype of such application, using Microsoft Kinect depth sensor. Step-by-step approach to recognizing gestures will be presented and the results will be evaluated accorded to criteria defined in the thesis proposal.
 
 \newpage
 \tableofcontents
@@ -112,13 +104,9 @@ Signature \hfill Place, Date
 
 \subsection{Motivation.}
 
-%!
-%Add how divers need to carry waterproof boards and markers around and stuff.
-%Communicate with robot like with a human.
-%Don't need to learn extra skills.
-%Effective message transmission.
+Communication underwater is much more complicated than on the surface. Divers often need to learn the entire diver's sign language to understand each other. Often to communicate more complex messages, they need carry waterproof boards and markers to communicate. There were a lot of developments with regards to making diving easier and safer recently. One of the possibilities are assistant underwater robots, capable of tracking the diver, performing research, communicating with other divers and more.
 
-Robotics department of Jacobs University Bremen has been working on several projects involving underwater robots. One of such projects, CADDY (Cognitive Autonomous Diving Buddy), is meant as an assistant for the diver, allowing to transport objects, take photographs and scan the surrounding area. However, equipment like this can be quite bulky and can possibly put the diver in danger in critical situations. Therefore, a concise, hands-free communication method has to be implemented between human and robot to initiate tasks and report current danger status. Since CADDY is equipped with a depth camera, in this project we will be focusing on implementing one of such methods - communication using hand gestures. Equipped with an ability to process diver's sign language, CADDY can be controlled from a safe distance, while helping diver and notifying others in case of any emergencies.
+Robotics department of Jacobs University Bremen has been working on several projects involving underwater robots. One of such projects, CADDY (Cognitive Autonomous Diving Buddy), is meant as an assistant for the diver, allowing to transport objects, take photographs and scan the surrounding area. However, equipment like this can be quite bulky to carry and can possibly put the diver in danger in critical situations. Therefore, a concise, hands-free communication method has to be implemented between human and robot to initiate tasks and report current danger status. Since CADDY is equipped with a depth camera, in this project we will be focusing on implementing one of such methods - communication using hand gestures. Equipped with an ability to process diver's sign language, CADDY can be controlled from a safe distance, while having virtually no learning curve. 
 
 \subsection{Research Question.}
 
@@ -351,18 +339,17 @@ To find the regions, corresponding to fingers, we will sample the values, locate
 \caption{Model after finger recognition}
 \end{figure}
 
-However, in some of the cases this will not be enough to make a correct judgement of a finger. If fingers are grouped together (located very close to each other), one bigger region will be returned, encompassing multiple fingers. In that case, rotated minimum area rectangle will be analyzed to make a prediction about a number of fingers inside the region. Let's define base width of that rectangle to be a length of a side, completely bordering with the outer circle of the hand. Now we can compare that value with a radius of the inner hand circle (representing the width of a segmented palm), decreased by 10\%, making it roughly the same as the width of 4 connected fingers. This computation will yield the following ratio (denoted $\lambda$):
+However, in some of the cases this will not be enough to make a correct judgement of a finger. If fingers are grouped together (located very close to each other), one bigger region will be returned, encompassing multiple fingers. In that case, rotated minimum area rectangle will be analyzed to make a prediction about a number of fingers inside the region. Let's define base width of that rectangle to be a length of a side, completely bordering with the outer circle of the hand. Now we can compare that value with a radius of the inner hand circle (representing the width of a segmented palm), decreased by 10\%, making it roughly the same as the width of 4 connected fingers. This computation will yield the following ratio (denoted $\lambda$, suggested by Vitali Henne \cite{VH01}):
 
-\[\lambda = \frac{BaseWidth * 4}{InnerCircleRadius * 0.9} \]
+\[\lambda = \frac{BaseWidth * 4}{InnerCircleRadius * 2} \]
 
-The values of this ratio can be analyzed, using the modification of working constants as suggested by Vitali Henne \cite{VH01} to make the final approximation regarding the number of fingers in the region.
-
+The values of this ratio can be analyzed to make the final approximation regarding the number of fingers in the region.
 \begin{itemize}
-\item $\lambda < 1.40$ : 1 finger in the region
-\item $1.40 <= \lambda < 2.35$ : 2 fingers in the region
-\item $2.35 <= \lambda < 3.05$ : 3 fingers in the region
-\item $3.05 <= \lambda < 4.20$ : 4 fingers in the region
-\item $\lambda >= 4.20$: Discard the case as anatomically impossible.
+\item $\lambda < 1.320$ : 1 finger in the region
+\item $1.320 <= \lambda < 2.315$ : 2 fingers in the region
+\item $2.315 <= \lambda < 2.815$ : 3 fingers in the region
+\item $2.815 <= \lambda < 4.000$ : 4 fingers in the region
+\item $\lambda >= 4.000$: Discard the case as anatomically impossible.
 \end{itemize}
 
 Then, we can separate the base, according to number of fingers in the regions, connect those points with discovered fingertip and process each of the inferred fingers separately. An example of a case, where such processing is done is displayed on an image below.
@@ -456,7 +443,7 @@ Either of the following two methods can be used to try the final application for
 
 \begin{itemize}
 \item Install drivers from Kinect SDK 2.0 (if needed).
-\item Download and extract \href{https://github.com/dmitryfd/KinectGR/releases/download/v1.0-demo/KinectGR_v1.0.zip}{\textit{the latest build}}.
+\item Download and extract \href{https://github.com/dmitryfd/KinectGR/releases/download/v1.0_RC/KinectGR_v1.0_RC.zip}{\textit{the latest build}}.
 \item Run KinectGR.exe. That is it!
 \end{itemize}
 
@@ -502,10 +489,54 @@ For more information regarding the flow of the application, please, refer to the
 
 Evaluation criteria for this research project are strongly coupled with the project requirements and implementation quality. The project is assessed against the following criteria, that can be used to evaluate the results of this thesis:
 
-\subsection{Performance}
+\subsection{Performance.}
 
-%!
-%Write me!
+Visual Studio's built-in profiler was used to analyze the performance of the implementation, focusing on the following:
+
+\begin{itemize}
+\item \textbf{CPU usage} to test whether algorithms have been properly optimized.
+\item \textbf{Memory consumption} to check for possible memory leaks and analyze performance of the garbage collector.
+\end{itemize}
+
+All the measurements have been done on a personal laptop with the following hardware specifications:
+\begin{itemize}
+\item \textbf{Model:} MacBook Pro (Retina, 13-inch, Late 2013)
+\item \textbf{CPU:} 2.6 GHz Intel Core i5
+\item \textbf{RAM:} 16 GB 1600 MHz DDR3
+\item \textbf{GPU:} Intel Iris 1536 MB
+\end{itemize}
+
+Following sections present the results, as well as short explanations and findings.
+
+\subsubsection{CPU usage.}
+
+As we can see, despite Kinect's high system requirements, overall CPU usage stays consistent and quite low. It was achieved as a result of heavy optimization of all recurring algorithms (e.g. Flood Fill, Distance Transform, Contour Matching etc.). Highest possible values were detected in the range of 40-60\%, for cases when the depth data was very noisy and both hands have been tracked for complex set of gestures.
+
+Predictably, gesture recognition is the most computationally intensive part of the implementation, corresponding to 31.20\% of overall CPU usage, followed by hand recognition and rendering depth frames into bitmaps.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{cpu-profiling.png}
+\caption{Results of CPU profiling.}
+\end{figure}
+
+\subsubsection{Memory consumption.}
+
+On a graph below, we can see that memory usage is consistent and conclude the absence of memory leaks. Usage slowly increases, as the frame buffer is populated with processed frames and then converges, in this case, to about 170 Mb (size of the full buffer and all the temporary storage for the algorithms).
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{memory-profiling.png}
+\caption{Results of memory profiling.}
+\end{figure}
+
+More in-detail analysis allows us to check which functions allocated bigger amounts of memory and try to optimize their space complexity. Looking at the results, we can note that rendering depth frame to the screen and Flood Fill consume the most memory, due to their need to allocate large matrixes for their computations. C\#'s built-in Garbage Collector often executes only after a certain time has passed, thus keeping these objects in memory for a bit longer.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{memory-details.png}
+\caption{Details about memory consumption.}
+\end{figure}
 
 \subsection{Functionality.}
 Application successfully implements all the features, described in this thesis paper. One user is being tracked and hand segmentation starts when all the environment assumptions are fulfilled (e.g. hand extended at least 30 cm in front of the body). Then, it attempts to recognize a static gesture and displays the results. Finally, sequence of frames is analyzed to notify the user about dynamic gestures recognized (if any).
@@ -521,8 +552,11 @@ Application successfully implements all the features, described in this thesis p
 \item Since dynamic gestures rely heavily on static gesture recognition, the results of this section highly depend on the results of the previous one. Gestures have been recognized in vast majority of the cases, where static gesture recognition succeeded and hand displacement was within the defined threshold. 
 \end{itemize}
 
-%!
-%Add pictures and graphs
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.22]{result-screenshots.png}
+\caption{Some screenshots from testing and evaluation phase.}
+\end{figure}
 
 \subsection{Modularity.}
 Because of the way the application is structured, it is very easy to alter specific parts of the system, while leaving the others intact. As described in the previous section, changing the gesture set of the application and adapting the program for a particular need is intuitive and simple. This successfully fulfills the goals set in the proposal part of the project and allows for easier adaptation later on.
@@ -548,7 +582,6 @@ Depth mask of the hand can be reused to calculate the differences in depth at mi
 
 Summarizing all the information presented above, we can see that gesture recognition, despite being a pretty novel technology, has a lot of useful applications. In our case, communicating with robot underwater can be complicated due to a number of natural events. Gesture recognition system allows to control the robot from the safe distance and keep track of safety of the diver. Step-by-step implementation of gesture recognition was presented, starting from hand segmentation and ending with identifying different kinds of gestures. It proved quite reliable in specific cases and further work will be performed to improve the application to be as robust as possible.  
 
-\newpage
 \section{Acknowledgements.}
 I would like to thank all the people, who helped me to succeed with implementing this guided research project:
 
