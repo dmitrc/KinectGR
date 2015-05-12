@@ -10,6 +10,9 @@ using Emgu.CV.Structure;
 
 namespace KinectGR
 {
+    /// <summary>
+    /// Recognized data from a gesture
+    /// </summary>
     public class GestureRecognizedData
     {
         public double ContourMatch;
@@ -17,6 +20,9 @@ namespace KinectGR
         public String Hand;
     }
 
+    /// <summary>
+    /// Class, representing a gesture.
+    /// </summary>
     public class Gesture : IDisposable
     {
         public String Name;
@@ -40,11 +46,18 @@ namespace KinectGR
             FingersCount = fingersCount;
         }
 
+        /// <summary>
+        /// Save gesture as an image
+        /// </summary>
+        /// <param name="filename">Name</param>
         public void ExportAs(String filename)
         {
             Image.ToBitmap().Save(filename);
         }
 
+        /// <summary>
+        /// Deallocate the memory associated with a gesture.
+        /// </summary>
         public void Dispose()
         {
            Image.Dispose();
@@ -53,17 +66,26 @@ namespace KinectGR
         }
     }
 
+    /// <summary>
+    /// Dynamic gesture types
+    /// </summary>
     public enum DynamicGestureType
     {
         DynamicGestureWave,
         DynamicGestureAlternation
     }
 
+    /// <summary>
+    /// Recognized data from a dynamic gesture.
+    /// </summary>
     public class DynamicGestureRecognizedData
     {
         public String Hand;
     }
 
+    /// <summary>
+    /// Class, that represents a dynamic gesture.
+    /// </summary>
     public class DynamicGesture
     {
         public String Name;

@@ -15,6 +15,9 @@ using Size = System.Drawing.Size;
 
 namespace KinectGR
 {
+    /// <summary>
+    /// Simple definition of a rectangle.
+    /// </summary>
     public class Rect
     {
         public int X;
@@ -30,49 +33,95 @@ namespace KinectGR
             Height = height;
         }
 
+        /// <summary>
+        /// Converts custom Rect to System.Drawing.Rectangle.
+        /// </summary>
+        /// <returns>System.Drawing.Rectangle</returns>
         public Rectangle ToRectangle()
         {
             return new Rectangle(X, Y, Width, Height);
         }
     }
 
+    /// <summary>
+    /// Collection of useful methods and constants.
+    /// </summary>
     public class Utility
     {
+        // Depth frame dimensions
         public static int FrameWidth = 512;
         public static int FrameHeight = 424;
+
+        // Desired hand crop dimensions
         public static int HandWidth = 120;
         public static int HandHeight = 120;
-        public static int HandBorder = 10;
+        public static int HandBorder = 10; // 0 - no border
+
+        // Reliability criteria for depth frames
         public static ushort MinReliableDepth = 500;
         public static ushort MaxReliableDepth = 4500;
 
+        // Math constants
         public const double CosThreshold = 0.5;
         public const double EqualsThreshold = 1e-7;
         public const int Step = 8;
         public const int R = 16;
        
+        // Coordinate mapper between frames
         public static CoordinateMapper CoordinateMapper = null;
 
+        /// <summary>
+        /// Returns Euclidean distance between a and b.
+        /// </summary>
+        /// <param name="a">a</param>
+        /// <param name="b">b</param>
+        /// <returns>Distance between a and b</returns>
         public static double Dist(Point a, Point b)
         {
             return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
         }
 
+
+        /// <summary>
+        /// Returns Euclidean distance between a and b (PointF overload).
+        /// </summary>
+        /// <param name="a">a</param>
+        /// <param name="b">b</param>
+        /// <returns>Distance between a and b</returns>
         public static double Dist(PointF a, PointF b)
         {
             return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
         }
 
+        /// <summary>
+        /// Magical function's purpose is mysterious, but functional.
+        /// </summary>
+        /// <param name="a">a</param>
+        /// <param name="b">b</param>
+        /// <param name="c">Point, with respect to which to compare</param>
+        /// <returns>More than 0 if should be swapped</returns>
         public static double MagicalFunction(PointF a, PointF b, PointF c)
         {
             return a.X * b.Y + b.X * c.Y + a.Y * c.X - b.Y * c.X - a.X * c.Y - a.Y * b.X;
         }
 
+        /// <summary>
+        /// Checks the equality of two doubles
+        /// </summary>
+        /// <param name="a">a</param>
+        /// <param name="b">b</param>
+        /// <returns>true if equal, false otherwise</returns>
         public static bool IsEq(double a, double b)
         {
             return Math.Abs(a - b) <= EqualsThreshold;
         }
-
+        
+        /// <summary>
+        /// Calculates angle between pt-R and pt+R
+        /// </summary>
+        /// <param name="contour">Contour</param>
+        /// <param name="pt">Index</param>
+        /// <returns>Angle</returns>
         public static double Angle(Contour<Point> contour, int pt)
         {
             int size = contour.Total;
@@ -88,6 +137,12 @@ namespace KinectGR
             return (ux * vx + uy * vy) / Math.Sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
         }
 
+        /// <summary>
+        /// Calculates rotation between points pt-R and pt+R
+        /// </summary>
+        /// <param name="contour">Contour</param>
+        /// <param name="pt">Index</param>
+        /// <returns>Rotation angle</returns>
         public static double Rotation(Contour<Point> contour, int pt)
         {
             int size = contour.Total;
@@ -103,10 +158,19 @@ namespace KinectGR
             return (ux * vy - vx * uy);
         }
 
+        /// <summary>
+        /// Deletes int pointer object.
+        /// </summary>
+        /// <param name="o">Object.</param>
+        /// <returns></returns>
         [DllImport("gdi32")]
         private static extern int DeleteObject(IntPtr o);
 
-
+        /// <summary>
+        /// Convert EmguCV Image<,> to BitmapSource.
+        /// </summary>
+        /// <param name="image">Image</param>
+        /// <returns>BitmapSource</returns>
         public static BitmapSource ConvertImageToBitmapSource(IImage image)
         {
             using (Bitmap source = image.Bitmap)
@@ -124,6 +188,13 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Converts boolean mask to bitmap source.
+        /// </summary>
+        /// <param name="mask">Mask</param>
+        /// <param name="w">Width</param>
+        /// <param name="h">Height</param>
+        /// <returns>BitmapSource</returns>
         public static Image<Gray, byte> ConvertMaskToImage(bool[] mask, int w, int h)
         {
             Image<Gray, byte> img = new Image<Gray, byte>(w, h);
@@ -139,6 +210,11 @@ namespace KinectGR
             return img;
         }
 
+        /// <summary>
+        /// Maps 3D coordinates to the 2D space of a depth map
+        /// </summary>
+        /// <param name="position">3D position</param>
+        /// <returns>2D point</returns>
         public static DepthSpacePoint ConvertBodyToDepthCoordinate(CameraSpacePoint position)
         {
             if (position.Z < 0)
@@ -156,6 +232,12 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Maps 2D coordinate to 3D space position.
+        /// </summary>
+        /// <param name="position">Coordinate</param>
+        /// <param name="depth">Depth value</param>
+        /// <returns>3D position</returns>
         public static CameraSpacePoint ConvertDepthToBodyCoordinate(DepthSpacePoint position, ushort depth)
         {
             if (CoordinateMapper != null)
@@ -168,6 +250,12 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Maps 3D coordinate point to the 2D space of resized hand mask.
+        /// </summary>
+        /// <param name="point">3D point</param>
+        /// <param name="frame">Rectangle</param>
+        /// <returns>Point</returns>
         public static Point ConvertFrameToResizedMaskCoordinate(CameraSpacePoint point, Rect frame)
         {
             DepthSpacePoint p = ConvertBodyToDepthCoordinate(point);
@@ -197,6 +285,15 @@ namespace KinectGR
             return new Point(cx + xOffset + HandBorder, cy + yOffset + HandBorder);
         }
 
+        /// <summary>
+        /// Crops and resizes hand to standard dimensions.
+        /// </summary>
+        /// <param name="mask">Mask</param>
+        /// <param name="x">X of hand</param>
+        /// <param name="y">Y of hand</param>
+        /// <param name="width">Width of hand</param>
+        /// <param name="height">Height of hand</param>
+        /// <returns>Cropped mask</returns>
         public static bool[] CropAndResize(bool[] mask, int x, int y, int width, int height)
         {
             bool[] newMask = new bool[width * height];
@@ -247,6 +344,11 @@ namespace KinectGR
             return resizedMask;
         }
 
+        /// <summary>
+        /// Renders depth frame to bitmap source.
+        /// </summary>
+        /// <param name="depthFrame">Depth frame</param>
+        /// <returns>Bitmap source</returns>
         public static BitmapSource DrawDepthFrame(ushort[] depthFrame)
         {
             PixelFormat format = PixelFormats.Bgr32;
@@ -285,6 +387,11 @@ namespace KinectGR
             return BitmapSource.Create(FrameWidth, FrameHeight, 96, 96, format, null, pixelData, stride);
         }
 
+        /// <summary>
+        /// Converts direction enum to printable string.
+        /// </summary>
+        /// <param name="direction">Direction</param>
+        /// <returns>Direction as string</returns>
         public static String DirectionToString(Direction direction)
         {
             if (direction == Direction.DirectionDown)

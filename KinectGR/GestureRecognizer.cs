@@ -19,10 +19,12 @@ namespace KinectGR
     /// </summary>
     class GestureRecognizer
     {
+        // Templates and properties
         public List<Gesture> Gestures = new List<Gesture>();
         public List<DynamicGesture> DynamicGestures = new List<DynamicGesture>(); 
         public String Hand;
 
+        // Frame buffer used
         private FrameBuffer _frameBuffer;
 
         public GestureRecognizer(String hand, FrameBuffer frameBuffer)
@@ -40,6 +42,10 @@ namespace KinectGR
             _frameBuffer = frameBuffer;
         }
 
+        /// <summary>
+        /// Add gesture to a dataset
+        /// </summary>
+        /// <param name="g">Gesture</param>
         public void AddGesture(Gesture g)
         {
             if (g != null)
@@ -48,6 +54,10 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Add list of gestures to a dataset
+        /// </summary>
+        /// <param name="g">List of gestures</param>
         public void AddGestures(List<Gesture> g)
         {
             if (g != null && g.Count > 0)
@@ -56,6 +66,11 @@ namespace KinectGR
             }
         }
 
+
+        /// <summary>
+        /// Add dynamic gesture to a dataset
+        /// </summary>
+        /// <param name="g">Gesture</param>
         public void AddDynamicGesture(DynamicGesture g)
         {
             if (g != null)
@@ -64,6 +79,10 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Add list of dynamic gestures to a dataset
+        /// </summary>
+        /// <param name="g">List of gestures</param>
         public void AddDynamicGestures(List<DynamicGesture> g)
         {
             if (g != null && g.Count > 0)
@@ -72,11 +91,23 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Compares two shapes
+        /// </summary>
+        /// <param name="first">First contour</param>
+        /// <param name="second">Second contour</param>
+        /// <returns>Similarity value</returns>
         public double CompareShapes(Image<Gray, byte> first, Image<Gray, byte> second)
         {
             return CvInvoke.cvMatchShapes(first, second, CONTOURS_MATCH_TYPE.CV_CONTOURS_MATCH_I3, 0);
         }
 
+        /// <summary>
+        /// Recognize gesture.
+        /// </summary>
+        /// <param name="contour">Hand contour</param>
+        /// <param name="fingersCount">Number of fingers</param>
+        /// <returns>Gesture (if any)</returns>
         public Gesture RecognizeGesture(Image<Gray, byte> contour, int fingersCount)
         {
             List<Gesture> recognizedGestures = new List<Gesture>(Gestures);
@@ -136,6 +167,10 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Recognizes dynamic gesture across series of frames.
+        /// </summary>
+        /// <returns>Gesture, if any</returns>
         public DynamicGesture RecognizeDynamicGesture()
         {
             DynamicFeatures features = _frameBuffer.GetDynamicFeatures(Hand);

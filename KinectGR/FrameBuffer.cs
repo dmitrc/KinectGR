@@ -14,6 +14,9 @@ using PointF = System.Drawing.PointF;
 
 namespace KinectGR
 {
+    /// <summary>
+    /// Represents a frame
+    /// </summary>
     class FrameData
     {
         public ushort[] DepthData;
@@ -34,6 +37,9 @@ namespace KinectGR
         }
     }
 
+    /// <summary>
+    /// Dynamic features of interest, to be extracted from the frames
+    /// </summary>
     class DynamicFeatures
     {
         public List<PointF> HandElbowOffsets = new List<PointF>();
@@ -41,12 +47,19 @@ namespace KinectGR
         // ...
     }
 
+    /// <summary>
+    /// Frame buffer stores last N frames and allows to extract data from them.
+    /// </summary>
     class FrameBuffer : IDisposable
     {
         private List<FrameData> _queue = new List<FrameData>();
         private const int FRAME_BUFFER_SIZE = 35;
         private Mutex _mutex = new Mutex();
 
+        /// <summary>
+        /// Add a new frame
+        /// </summary>
+        /// <param name="frame">Frame</param>
         public void PushFrame(FrameData frame)
         {
             _mutex.WaitOne();
@@ -59,6 +72,10 @@ namespace KinectGR
             _mutex.ReleaseMutex();
         }
 
+        /// <summary>
+        /// Gets a latest frame
+        /// </summary>
+        /// <returns>Frame</returns>
         public FrameData LatestFrame()
         {
             _mutex.WaitOne();
@@ -74,6 +91,10 @@ namespace KinectGR
             return frame;
         }
 
+        /// <summary>
+        /// Gets oldest frame in the buffer
+        /// </summary>
+        /// <returns>Frame</returns>
         public FrameData OldestFrame()
         {
             _mutex.WaitOne();
@@ -89,6 +110,11 @@ namespace KinectGR
             return frame;
         }
 
+        /// <summary>
+        /// Gets dynamic features from the entire buffer.
+        /// </summary>
+        /// <param name="hand">Hand</param>
+        /// <returns>Dynamic features</returns>
         public DynamicFeatures GetDynamicFeatures(String hand)
         {
             if (hand != "Left" && hand != "Right")
@@ -160,6 +186,9 @@ namespace KinectGR
             return features;
         }
 
+        /// <summary>
+        /// Deallocates buffer and all its frames
+        /// </summary>
         public void Dispose()
         {
             _mutex.Dispose();

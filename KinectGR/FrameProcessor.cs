@@ -102,13 +102,20 @@ namespace KinectGR
             _rightGestureRecognizer.AddDynamicGestures(dynamicGestures);
         }
 
+        /// <summary>
+        /// Adds a gesture to both gesture recognizers.
+        /// </summary>
+        /// <param name="g">Gesture</param>
         public void AddGesture(Gesture g)
         {
             _leftGestureRecognizer.AddGesture(g);
             _rightGestureRecognizer.AddGesture(g);
         }
 
-        // !
+        /// <summary>
+        /// Processes frame in the background (not quite ready yet).
+        /// </summary>
+        /// <param name="frame">Frame</param>
         public void ProcessFrameInBackground(MultiSourceFrame frame)
         {
             BackgroundWorker worker = new BackgroundWorker();
@@ -118,6 +125,10 @@ namespace KinectGR
             };
         }
 
+        /// <summary>
+        /// Processes frame on the main thread.
+        /// </summary>
+        /// <param name="frame">Frame</param>
         public void ProcessFrame(MultiSourceFrame frame)
         {
             FrameData frameData = new FrameData();
