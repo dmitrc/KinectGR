@@ -301,7 +301,7 @@ namespace KinectGR
                             double ratio = baseWidth * 4 / refWidth;
 
                             int count = 1;
-                            if (ratio > 1.320 && ratio <= 2.315) count = 2;
+                            if (ratio > 1.317 && ratio <= 2.315) count = 2;
                             else if (ratio > 2.315 && ratio <= 2.815) count = 3;
                             else if (ratio > 2.815 && ratio <= 4) count = 4;
 
