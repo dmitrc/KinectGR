@@ -266,8 +266,19 @@ namespace KinectGR
             }
         }
 
+
+        /// <summary>
+        /// Saves left mask as an image file
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Event args</param>
         private void SaveLeftGesture(object sender, RoutedEventArgs e)
         {
+            if (_frameProcessor.FrameBuffer.LatestFrame() == null)
+            {
+                return;
+            }
+
             Hand hand = _frameProcessor.FrameBuffer.LatestFrame().LeftHand;
 
             if (hand != null)
@@ -277,8 +288,18 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Saves right mask as an image file
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Event args</param>
         private void SaveRightGesture(object sender, RoutedEventArgs e)
         {
+            if (_frameProcessor.FrameBuffer.LatestFrame() == null)
+            {
+                return;
+            }
+
             Hand hand = _frameProcessor.FrameBuffer.LatestFrame().RightHand;
 
             if (hand != null)
