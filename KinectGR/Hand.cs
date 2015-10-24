@@ -16,12 +16,9 @@ using Size = System.Drawing.Size;
 
 namespace KinectGR
 {
-    //public class Finger
-    //{
-    //    public PointF Tip;
-    //    public Rect Position;
-    //}
-
+    /// <summary>
+    /// Defines direction
+    /// </summary>
     public enum Direction
     {
         DirectionUnknown,
@@ -31,6 +28,9 @@ namespace KinectGR
         DirectionDown
     }
 
+    /// <summary>
+    /// Basic class to represent a finger.
+    /// </summary>
     public class Finger
     {
         public double Width;
@@ -38,17 +38,24 @@ namespace KinectGR
         public PointF Base;
     }
 
+    /// <summary>
+    /// Class to process and store a hand.
+    /// </summary>
     public class Hand
     {
+        // Outer circle multiplier
         private const double OuterCircleMultiplier = 1.60;
 
+        // Kinect data
         private Point _handJoint;
         private Point _wristJoint;
         private Point _handtipJoint;
         private Point _thumbJoint;
 
+        // Mask for fingers
         private byte[] _fingersMask;
 
+        // Properties
         public Rect Position;
         public bool[] Mask;
 
@@ -75,6 +82,9 @@ namespace KinectGR
             Analyze();
         }
 
+        /// <summary>
+        /// Extract relevant features from the hand mask and initializes the properties.
+        /// </summary>
         public void Analyze()
         {
             MaskImage = Utility.ConvertMaskToImage(Mask, Utility.HandWidth, Utility.HandHeight);
@@ -108,6 +118,10 @@ namespace KinectGR
             }
         }
 
+        /// <summary>
+        /// Uses Distance Transform to locate the palm center.
+        /// </summary>
+        /// <returns>Center point</returns>
         private Point LocatePalmCenter()
         {
             Image<Gray, float> dtImage = new Image<Gray, float>(Utility.HandWidth, Utility.HandHeight);
@@ -156,6 +170,10 @@ namespace KinectGR
             return candidates[0];
         }
 
+        /// <summary>
+        /// Calculates maximal inner radius.
+        /// </summary>
+        /// <returns>Radius</returns>
         public int CalculateInnerRadius()
         {
             int r = 1;
@@ -168,6 +186,11 @@ namespace KinectGR
             return r;
         }
 
+        /// <summary>
+        /// Checks whether inner radius is valid.
+        /// </summary>
+        /// <param name="r">Radius</param>
+        /// <returns>true if valid, false otherwise</returns>
         private bool IsValidInnerRadius(int r)
         {
             if (PalmCenter.X + r >= Utility.HandWidth
@@ -204,6 +227,10 @@ namespace KinectGR
             return true;
         }
 
+        /// <summary>
+        /// Calculates direction of the hand.
+        /// </summary>
+        /// <returns>Direction</returns>
         public Direction CalculateDirection()
         {
             if (Fingers == null || Fingers.Count == 0)
@@ -256,6 +283,10 @@ namespace KinectGR
             return Direction.DirectionUnknown;
         }
 
+        /// <summary>
+        /// Extracts fingers from the hand mask
+        /// </summary>
+        /// <returns>List of fingers</returns>
         public List<Finger> ExtractFingers()
         {
             Array.Clear(_fingersMask, 0, _fingersMask.Length);
@@ -297,11 +328,12 @@ namespace KinectGR
                                 continue;
                             }
 
+                            // Determine number of fingers
                             double refWidth = (double)InnerCircleRadius * 2;
                             double ratio = baseWidth * 4 / refWidth;
 
                             int count = 1;
-                            if (ratio > 1.320 && ratio <= 2.315) count = 2;
+                            if (ratio > 1.317 && ratio <= 2.315) count = 2;
                             else if (ratio > 2.315 && ratio <= 2.815) count = 3;
                             else if (ratio > 2.815 && ratio <= 4) count = 4;
 
@@ -367,6 +399,13 @@ namespace KinectGR
             return fingers;
         }
 
+        /// <summary>
+        /// Perform basic Flood Fill to extract a region
+        /// </summary>
+        /// <param name="xi">Start X</param>
+        /// <param name="yi">Start Y</param>
+        /// <param name="id">Finger id for the mask</param>
+        /// <returns>Mask of the region</returns>
         private bool[] ExtractRegion(int xi, int yi, byte id)
         {
             bool[] region = new bool[Utility.HandWidth * Utility.HandHeight];
@@ -439,6 +478,11 @@ namespace KinectGR
             return region;
         }
 
+        /// <summary>
+        /// Calculates position of the finger.
+        /// </summary>
+        /// <param name="mask">Mask</param>
+        /// <returns>Position</returns>
         private Rect CalculateFingerPosition(bool[] mask)
         {
             int minX = int.MaxValue;
@@ -475,6 +519,12 @@ namespace KinectGR
             return new Rect(minX, minY, maxX - minX, maxY - minY);
         }
 
+        /// <summary>
+        /// Caclulates finger tip (point furthest away from the center)
+        /// </summary>
+        /// <param name="mask">Mask</param>
+        /// <param name="position">Position</param>
+        /// <returns>Finger tip point</returns>
         private PointF CalculateFingerTip(bool[] mask, Rect position)
         {
             double max = Double.MinValue;
@@ -502,6 +552,12 @@ namespace KinectGR
             return new PointF(x, y);
         }
 
+        /// <summary>
+        /// Calculate two points forming the base of a finger.
+        /// </summary>
+        /// <param name="mask">Mask</param>
+        /// <param name="position">Position</param>
+        /// <returns>Two points representing the base</returns>
         private Tuple<PointF, PointF> CalculateFingerBase(bool[] mask, Rect position)
         {
             int r = OuterCircleRadius;

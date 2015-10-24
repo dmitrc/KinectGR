@@ -9,15 +9,26 @@ using System.Windows.Shapes;
 
 namespace KinectGR
 {
+    /// <summary>
+    /// Segments hands from the depth mask.
+    /// </summary>
     internal class HandRecognizer
     {
+        // Constants.
         public static ushort FwdThreshold = 200; //mm
         public static ushort BwdThreshold = 25; //mm
         public static ushort BodyDepthCutoff = 350; //mm
 
+        // Frame and joints.
         private ushort[] _depthFrame = null;
         private Dictionary<String, Joint> _joints = null;
 
+        /// <summary>
+        /// Identifies hand in a multi-source frame.
+        /// </summary>
+        /// <param name="depthData">Depth frame</param>
+        /// <param name="joints">Relevant joints</param>
+        /// <returns>Hand object (or null if none)</returns>
         public Hand IdentifyHand(ushort[] depthData, Dictionary<String, Joint> joints)
         {
             _depthFrame = depthData;
@@ -57,6 +68,14 @@ namespace KinectGR
             return FloodFill(point, handZ);
         }
 
+        /// <summary>
+        /// Checks whether Flood Fill criteria are satisfied.
+        /// </summary>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        /// <param name="baseDepth">Depth of reference</param>
+        /// <param name="mask">Mask</param>
+        /// <returns>true if passed, false otherwise</returns>
         private Boolean FloodFillCriteriaCheck(int x, int y, ushort baseDepth, bool[] mask)
         {
             int i = y * Utility.FrameWidth + x;
@@ -102,6 +121,12 @@ namespace KinectGR
             return true;
         }
 
+        /// <summary>
+        /// Performs Flood Fill from a starting point with depth given.
+        /// </summary>
+        /// <param name="start">Point</param>
+        /// <param name="baseDepth">Depth</param>
+        /// <returns>Hand (or null if none)</returns>
         private Hand FloodFill(DepthSpacePoint start, ushort baseDepth)
         {
             Queue<DepthSpacePoint> queue = new Queue<DepthSpacePoint>();
